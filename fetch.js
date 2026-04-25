@@ -166,9 +166,15 @@ function formatPhoneNumber(phone) {
 
 function processTXTRecords(txtRecords) {
     const profileDiv = document.getElementById('profile');
+    const bioDiv = document.getElementById('bio');
     const linksDiv = document.getElementById('links');
     const currencyButtonsDiv = document.getElementById('currency-buttons');
     let bgSet = false;
+
+    // Set default bio state
+    if (bioDiv) {
+        bioDiv.innerHTML = '<span style="opacity: 0.5; font-style: italic;">No bio available.</span>';
+    }
     const currencies = { 
         btc: null, ln: null, hns: null, eth: null, xmr: null, zec: null, bat: null,
         aave: null, ada: null, algo: null, apt: null, atom: null, avax: null, 
@@ -206,6 +212,12 @@ function processTXTRecords(txtRecords) {
                 if (!bgSet) {
                     document.body.style.backgroundColor = `#${value}`;
                     bgSet = true;
+                }
+                break;
+            case 'bio':
+            case 'description':
+                if (bioDiv) {
+                    bioDiv.innerText = value;
                 }
                 break;
             case 'agent-manifest':
