@@ -8,7 +8,11 @@
     <link rel="stylesheet" href="style.css?version=1">
 </head>
 <body>
-    <div id="content">
+    <div id="loading" style="display: none; text-align: center; padding-top: 150px; color: white;">
+        <div class="spinner"></div>
+        <p style="margin-top: 20px; font-size: 1.2em; font-family: monospace;">Fetching TXT records from blockchain...</p>
+    </div>
+    <div id="content" style="display: none;">
         <div class="profile" id="profile"></div>
         <div class="links" id="links"></div>
         <div class="currency-buttons" id="currency-buttons"></div>

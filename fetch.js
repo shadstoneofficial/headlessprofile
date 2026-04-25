@@ -15,6 +15,11 @@ async function fetchTXTRecords() {
 
     document.title = domain;
 
+    // Show loading state
+    const loadingDiv = document.getElementById('loading');
+    const contentDiv = document.getElementById('content');
+    if (loadingDiv) loadingDiv.style.display = 'block';
+
     // Fetch and process the root domain's records
     const txtRecords = await fetchAndProcessTXTRecords(domain);
 
@@ -25,6 +30,10 @@ async function fetchTXTRecords() {
 
         // Process and display the fetched records
         processTXTRecords(txtRecords);
+
+        // Hide loading state, show content
+        if (loadingDiv) loadingDiv.style.display = 'none';
+        if (contentDiv) contentDiv.style.display = 'block';
 
         // Process any external records asynchronously
         txtRecords.forEach(record => {
@@ -104,12 +113,16 @@ async function fetchAndProcessTXTRecords(domain) {
                 .map(record => record.data.replace(/"/g, ''));
         } else {
             console.error("No TXT records found in DNS response.");
-            document.body.innerHTML = `<p>No TXT records found for this domain.</p><br><a style="color: #fff; text-decoration: none;" href="https://github.com/H4ckB4s3/hns-bio">Do you need help seting up your DID? Check the full documentation</a>`;
+            const loadingDiv = document.getElementById('loading');
+            if (loadingDiv) loadingDiv.style.display = 'none';
+            document.body.innerHTML = `<p style="text-align:center; padding:50px; color:white;">No TXT records found for this domain.</p><br><div style="text-align:center;"><a style="color: #fff; text-decoration: underline;" href="https://github.com/H4ckB4s3/hns-bio">Do you need help seting up your DID? Check the full documentation</a></div>`;
             return null;
         }
     } catch (error) {
         console.error("Fetch Error:", error);
-        document.body.innerHTML = `<p>An error occurred while fetching TXT records: ${error.message}</p><br><a style="color: #fff; text-decoration: none;" href="https://github.com/H4ckB4s3/hns-bio">Do you need help seting up your DID? Check the full documentation</a>`;
+        const loadingDiv = document.getElementById('loading');
+        if (loadingDiv) loadingDiv.style.display = 'none';
+        document.body.innerHTML = `<p style="text-align:center; padding:50px; color:white;">An error occurred while fetching TXT records: ${error.message}</p><br><div style="text-align:center;"><a style="color: #fff; text-decoration: underline;" href="https://github.com/H4ckB4s3/hns-bio">Do you need help seting up your DID? Check the full documentation</a></div>`;
         return null;
     }
 }

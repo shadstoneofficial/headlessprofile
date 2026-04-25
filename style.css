@@ -14,6 +14,21 @@ body {
     background-repeat: no-repeat;
 }
 
+/* Loading Spinner */
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #00cc88;
+    animation: spin 1s ease-in-out infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 .profile {
     text-align: center;
     margin-bottom: 20px;
