@@ -68,17 +68,24 @@ async function setDynamicFavicon(txtRecords) {
         const faviconValue = faviconRecord.split("fav:")[1];
         const faviconUrl = `https://${faviconValue}`;
         
-        // Update existing favicon link or create new one
-        let faviconLink = document.querySelector('link[rel="shortcut icon"]');
-        if (!faviconLink) {
-            faviconLink = document.createElement('link');
+        // Update all existing favicon links
+        let iconLinks = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]');
+        
+        if (iconLinks.length > 0) {
+            // Update existing ones
+            iconLinks.forEach(link => {
+                link.href = faviconUrl;
+            });
+        } else {
+            // Fallback: create a new one if none exist
+            let faviconLink = document.createElement('link');
             faviconLink.rel = 'shortcut icon';
-            faviconLink.type = 'image/x-icon';
+            faviconLink.type = 'image/png';
+            faviconLink.href = faviconUrl;
             document.head.appendChild(faviconLink);
         }
-        faviconLink.href = faviconUrl;
     }
-    // If no "fav:" record exists, default favicon "/img/hns.ico" remains
+    // If no "fav:" record exists, default favicon "/static/favicon.png" remains
 }
 
 // Function to set dynamic CSS based on TXT record with "css:" prefix
@@ -363,8 +370,8 @@ function processTXTRecords(txtRecords) {
     const directoryActionsDiv = document.getElementById('directory-actions');
     if (directoryActionsDiv) {
         directoryActionsDiv.innerHTML = `
-            <button onclick="indexToDirectory()" 
-                    style="background:#00cc88; color:white; padding:12px 24px; border:none; border-radius:8px; margin-top:20px; cursor:pointer; font-weight:bold; font-size:1.1em;">
+            <button id="index-btn" onclick="indexToDirectory()" 
+                    style="background:#00cc88; color:white; padding:12px 24px; border:none; border-radius:8px; margin-top:20px; cursor:pointer; font-weight:bold; font-size:1.1em; transition: all 0.3s;">
                 📌 Add / Update in Directory
             </button>
         `;
@@ -394,6 +401,14 @@ function indexToDirectory() {
     }
 
     if (domain) {
+        const btn = document.getElementById('index-btn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner" style="width:16px; height:16px; border-width:3px; display:inline-block; vertical-align:middle; margin-right:8px; border-top-color: white;"></span> Indexing... please wait`;
+            btn.style.opacity = '0.7';
+            btn.style.cursor = 'wait';
+        }
+
         fetch('https://directory.headlessprofile.com/api/index', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -401,13 +416,26 @@ function indexToDirectory() {
         })
         .then(response => {
             if (response.ok) {
-                alert('Successfully added/updated in Directory!');
+                // Redirect on success to the newly indexed directory page
+                window.location.href = `https://directory.headlessprofile.com/entry/${domain}`;
             } else {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `📌 Add / Update in Directory`;
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                }
                 alert('Failed to update directory.');
             }
         })
         .catch(err => {
             console.error(err);
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `📌 Add / Update in Directory`;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+            }
             alert('Error updating directory.');
         });
     }
