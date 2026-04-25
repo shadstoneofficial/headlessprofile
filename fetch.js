@@ -1,17 +1,22 @@
 async function fetchTXTRecords() {
-    const fullHostname = window.location.hostname;
-    let rootDomain = "";
+    const urlParams = new URLSearchParams(window.location.search);
+    let domain = urlParams.get('domain');
 
-    if (fullHostname.includes('.hns.bio')) {
-        rootDomain = fullHostname.split('.hns.bio')[0];
-    } else {
-        rootDomain = fullHostname;
+    const fullHostname = window.location.hostname;
+
+    if (!domain) {
+        if (fullHostname === 'headlessprofile.com' || fullHostname.includes('netlify')) {
+            // Show nice landing page for the root domain
+            showLandingPage();
+            return;
+        }
+        domain = fullHostname;  // fallback
     }
 
-    document.title = rootDomain;
+    document.title = domain;
 
     // Fetch and process the root domain's records
-    const txtRecords = await fetchAndProcessTXTRecords(rootDomain);
+    const txtRecords = await fetchAndProcessTXTRecords(domain);
 
     if (txtRecords) {
         // Apply dynamic favicon and CSS
@@ -362,3 +367,24 @@ function fallbackCopyToClipboard(text) {
 }
 
 window.onload = fetchTXTRecords;
+
+function showLandingPage() {
+    document.body.innerHTML = `
+        <div style="text-align:center; padding:100px 20px; color:white;">
+            <h1>🧠 Headless Profile</h1>
+            <p style="font-size:1.3em;">Decentralized AI Agent + Human Identity Viewer</p>
+            <p>Try it with any Handshake domain:</p>
+            <input type="text" id="domainInput" placeholder="janice.agent" style="padding:12px; width:300px; font-size:1.1em;">
+            <button onclick="goToDomain()" style="padding:12px 24px; font-size:1.1em; cursor:pointer;">View Profile →</button>
+            
+            <p style="margin-top:60px; opacity:0.8;">
+                Fork of <a href="https://hns.bio" style="color:#0f0">hns.bio</a> • Enhanced for AI Agents
+            </p>
+        </div>
+    `;
+}
+
+function goToDomain() {
+    const input = document.getElementById('domainInput').value.trim();
+    if (input) window.location.href = `https://headlessprofile.com/?domain=${input}`;
+}
