@@ -331,6 +331,59 @@ function processTXTRecords(txtRecords) {
             currencyButtonsDiv.innerHTML += button;
         }
     });
+
+    // Add Directory Button
+    const directoryActionsDiv = document.getElementById('directory-actions');
+    if (directoryActionsDiv) {
+        directoryActionsDiv.innerHTML = `
+            <button onclick="indexToDirectory()" 
+                    style="background:#00cc88; color:white; padding:12px 24px; border:none; border-radius:8px; margin-top:20px; cursor:pointer; font-weight:bold; font-size:1.1em;">
+                📌 Add / Update in Directory
+            </button>
+        `;
+    }
+
+    // Auto-index to directory (silent)
+    const urlParams = new URLSearchParams(window.location.search);
+    let domain = urlParams.get('domain');
+    if (!domain) {
+        domain = window.location.hostname;
+    }
+    
+    if (domain && domain !== 'headlessprofile.com' && !domain.includes('netlify')) {
+        fetch('https://directory.headlessprofile.com/api/index', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ domain })
+        }).catch(() => {}); // silent fail — don't break the viewer
+    }
+}
+
+function indexToDirectory() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let domain = urlParams.get('domain');
+    if (!domain) {
+        domain = window.location.hostname;
+    }
+
+    if (domain) {
+        fetch('https://directory.headlessprofile.com/api/index', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ domain })
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Successfully added/updated in Directory!');
+            } else {
+                alert('Failed to update directory.');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Error updating directory.');
+        });
+    }
 }
 
 
