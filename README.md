@@ -32,6 +32,8 @@ TXT record prefixes standardize how information is structured and interpreted, m
 | **Prefix**                   | **Purpose**                      | **Example**                |
 |------------------------------|----------------------------------|----------------------------|
 | `pfp:<url>`                  | Profile picture URL              | `pfp:example.com/img.png`  |
+| `name:<text>`                | Display name                     | `name:Janice The Agent`    |
+| `category:<text>`            | Main classification/category     | `category:Sales Agent`     |
 | `bio:<text>`                 | Short biography or description (max ~250 chars) | `bio:Decentralized AI Agent` |
 | `bgcolor:<hex>`              | Background color in HEX format   | `bgcolor:ffffff`           |
 | `bg:<url>`                   | Background image URL             | `bg:example.com/bg_img.png`|

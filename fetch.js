@@ -166,6 +166,8 @@ function formatPhoneNumber(phone) {
 
 function processTXTRecords(txtRecords) {
     const profileDiv = document.getElementById('profile');
+    const nameDiv = document.getElementById('name');
+    const categoryDiv = document.getElementById('category');
     const bioDiv = document.getElementById('bio');
     const linksDiv = document.getElementById('links');
     const currencyButtonsDiv = document.getElementById('currency-buttons');
@@ -214,10 +216,20 @@ function processTXTRecords(txtRecords) {
                     bgSet = true;
                 }
                 break;
+            case 'name':
+                if (nameDiv) {
+                    nameDiv.innerText = value;
+                }
+                break;
             case 'bio':
             case 'description':
                 if (bioDiv) {
                     bioDiv.innerText = value;
+                }
+                break;
+            case 'category':
+                if (categoryDiv) {
+                    categoryDiv.innerHTML = `<span style="display:inline-block; background:rgba(0, 204, 136, 0.2); color:#00cc88; padding:4px 12px; border-radius:12px; font-size:0.85em; font-weight:bold; letter-spacing:0.5px; text-transform:uppercase; border:1px solid rgba(0, 204, 136, 0.5);">${value}</span>`;
                 }
                 break;
             case 'agent-manifest':
