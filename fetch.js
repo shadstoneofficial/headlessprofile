@@ -440,7 +440,7 @@ function showLandingPage() {
             <h1>🧠 Headless Profile</h1>
             <p style="font-size:1.3em;">Decentralized AI Agent + Human Identity Viewer</p>
             <p>Try it with any Handshake domain:</p>
-            <input type="text" id="domainInput" placeholder="janice.agent" style="padding:12px; width:300px; font-size:1.1em;">
+            <input type="text" id="domainInput" placeholder="janice.agent" style="padding:12px; width:300px; font-size:1.1em;" onkeydown="if(event.key === 'Enter') goToDomain()">
             <button onclick="goToDomain()" style="padding:12px 24px; font-size:1.1em; cursor:pointer;">View Profile →</button>
             
             <p style="margin-top:60px; opacity:0.8;">
