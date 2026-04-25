@@ -145,3 +145,9 @@ body {
 .footer a:hover {
     text-decoration: underline;
 }
+
+/* Hover effects for promotional banner */
+a[href="https://headlessdomains.com"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 204, 136, 0.25) !important;
+}
