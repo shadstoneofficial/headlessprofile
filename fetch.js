@@ -33,6 +33,15 @@ async function fetchTXTRecords() {
         await setDynamicFavicon(txtRecords);
         await setDynamicCSS(txtRecords);
 
+        // Set the domain header
+        const domainHeaderDiv = document.getElementById('domain-header');
+        if (domainHeaderDiv) {
+            domainHeaderDiv.innerHTML = `
+                <span style="font-size: 0.7em; opacity: 0.7; font-family: sans-serif; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px;">Viewing Profile</span>
+                <span style="font-weight: bold;">${domain}</span>
+            `;
+        }
+
         // Process and display the fetched records
         processTXTRecords(txtRecords);
 
