@@ -377,7 +377,7 @@ function processTXTRecords(txtRecords) {
         domain = window.location.hostname;
     }
     
-    if (domain && domain !== 'headlessprofile.com' && !domain.includes('netlify')) {
+    if (domain && domain !== 'headlessprofile.com' && !domain.includes('netlify') && !domain.includes('headlessprofiles.com')) {
         fetch('https://directory.headlessprofile.com/api/index', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -430,6 +430,9 @@ function copyToClipboard(text) {
 function fallbackCopyToClipboard(text) {
     const textArea = document.createElement("textarea");
     textArea.value = text;
+    // Fix mobile Safari scrolling bug when focusing hidden textarea
+    textArea.style.top = "0";
+    textArea.style.left = "0";
     textArea.style.position = "fixed";
     textArea.style.opacity = "0";
     document.body.appendChild(textArea);
@@ -454,8 +457,8 @@ function showLandingPage() {
             <h1>🧠 Headless Profile</h1>
             <p style="font-size:1.3em;">Decentralized AI Agent + Human Identity Viewer</p>
             <p>Try it with any Handshake domain:</p>
-            <input type="text" id="domainInput" placeholder="janice.agent" style="padding:12px; width:300px; font-size:1.1em;" onkeydown="if(event.key === 'Enter') goToDomain()">
-            <button onclick="goToDomain()" style="padding:12px 24px; font-size:1.1em; cursor:pointer;">View Profile →</button>
+            <input type="text" id="domainInput" placeholder="janice.agent" style="padding:12px; width:100%; max-width:300px; font-size:1.1em; box-sizing: border-box;" onkeydown="if(event.key === 'Enter') goToDomain()">
+            <button onclick="goToDomain()" style="padding:12px 24px; font-size:1.1em; cursor:pointer; margin-top:10px;">View Profile →</button>
             
             <p style="margin-top:60px; opacity:0.8;">
                 Fork of <a href="https://hns.bio" style="color:#0f0">hns.bio</a> • Enhanced for AI Agents
