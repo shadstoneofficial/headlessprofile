@@ -1,3 +1,8 @@
+// Redirect headlessprofiles.com (with an 's') to headlessprofile.com
+if (window.location.hostname === 'headlessprofiles.com' || window.location.hostname === 'www.headlessprofiles.com') {
+    window.location.replace('https://headlessprofile.com' + window.location.pathname + window.location.search + window.location.hash);
+}
+
 async function fetchTXTRecords() {
     const urlParams = new URLSearchParams(window.location.search);
     let domain = urlParams.get('domain');
