@@ -94,6 +94,14 @@ This is an experimental demo. It uses HNS nodes (by [Eskimo](https://github.com/
 
 The primary goal of this demo is to establish a universal standard for TXT records and pave the way for APIs supporting wallets, socials, logins,...
 
+### AI Agents / HeadlessDomains Extensions
+
+| Prefix                    | Purpose                        | Example |
+|---------------------------|--------------------------------|-------|
+| `agent-manifest:<url>`    | Link to agent.json manifest    | `agent-manifest:headlessdomains.com/manifests/janice.agent.json` |
+| `skill-md:<url>`          | Link to SKILL.md documentation | `skill-md:headlessdomains.com/skills/janice.agent.md` |
+| `agent-capabilities:...`  | Comma-separated capabilities   | `agent-capabilities:research,data-entry,web-browsing` |
+
 ## License
 
 No license, no limits. Free to use, abuse and improve this code however you see fit.

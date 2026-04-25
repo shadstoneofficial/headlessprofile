@@ -143,7 +143,9 @@ function processTXTRecords(txtRecords) {
     };
 
     txtRecords.forEach(record => {
-        const [key, value] = record.split(':');
+        let separator = record.includes('=') ? '=' : ':';
+        const [key, ...valueParts] = record.split(separator);
+        const value = valueParts.join(separator);
         let formattedValue = value;
 
         // Format phone number for 'tel' key
@@ -166,6 +168,31 @@ function processTXTRecords(txtRecords) {
                     document.body.style.backgroundColor = `#${value}`;
                     bgSet = true;
                 }
+                break;
+            case 'agent-manifest':
+            case 'manifest':
+                linksDiv.innerHTML += `
+                    <a class="link" href="https://${value}" target="_blank"
+                       style="background: linear-gradient(135deg, #00cc88, #009966); color: white;">
+                        <img src="img/agent.png" alt="Agent Manifest"> Agent Manifest
+                    </a>`;
+                break;
+            case 'skill-md':
+            case 'skill':
+                linksDiv.innerHTML += `
+                    <a class="link" href="https://${value}" target="_blank"
+                       style="background: linear-gradient(135deg, #ff8800, #cc6600); color: white;">
+                        <img src="img/skill.png" alt="Skill MD"> SKILL.md
+                    </a>`;
+                break;
+            case 'agent-capabilities':
+                const caps = value.split(',').map(c => c.trim());
+                caps.forEach(cap => {
+                    linksDiv.innerHTML += `
+                        <span class="link" style="background:#444; font-size:0.9em; padding:8px 12px; display:inline-block; margin:4px; border-radius:4px;">
+                            ${cap}
+                        </span>`;
+                });
                 break;
             case 'tb':
                 linksDiv.innerHTML += `<button class="link" onclick="copyToClipboard('${value}')"><img src="img/${key}.png" alt="${key.toUpperCase()} Icon"></button>`;
