@@ -45,6 +45,9 @@ async function fetchTXTRecords() {
         // Process and display the fetched records
         processTXTRecords(txtRecords);
 
+        // Fetch ARP Integration Status
+        await fetchARPIntegration(domain);
+
         // Hide loading state, show content
         if (loadingDiv) loadingDiv.style.display = 'none';
         if (contentDiv) contentDiv.style.display = 'block';
@@ -164,6 +167,47 @@ function formatPhoneNumber(phone) {
     return phone; // Return unchanged if none of the conditions apply
 }
 
+// Function to fetch and display ARP Integration Status
+async function fetchARPIntegration(domain) {
+    const arpBadgeDiv = document.getElementById('arp-badge');
+    const primaryActionsDiv = document.getElementById('primary-actions');
+
+    if (!domain) return;
+
+    try {
+        const response = await fetch(`https://headlessdomains.com/api/v1/lookup/${domain}`);
+        if (!response.ok) return; // Silent fail if API is down or domain not found
+
+        const data = await response.json();
+        
+        if (data.status === "success" && data.integrations && data.integrations.arp_chat && data.integrations.arp_chat.enabled) {
+            const chatUrl = data.integrations.arp_chat.url || `https://chat.arp.run/${domain}`;
+            
+            // 1. Show the "ARP Chat Enabled" badge under the tags
+            if (arpBadgeDiv) {
+                arpBadgeDiv.style.display = 'block';
+            }
+
+            // 2. Add the "Chat Now" CTA button to the primary actions grid
+            if (primaryActionsDiv) {
+                primaryActionsDiv.innerHTML = `
+                    <a class="action-card" href="${chatUrl}" target="_blank" style="background: linear-gradient(135deg, rgba(65, 105, 225, 0.2), rgba(65, 105, 225, 0.1)); border-color: rgba(65, 105, 225, 0.4);">
+                        <div class="action-icon" style="background: rgba(65, 105, 225, 0.2);">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4169e1" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        </div>
+                        <div class="action-text">
+                            <div class="action-title" style="color: #fff;">Chat Now</div>
+                            <div class="action-sub">ARP Secure Chat</div>
+                        </div>
+                        <div class="action-arrow" style="color: #4169e1;">→</div>
+                    </a>` + primaryActionsDiv.innerHTML; // Prepend it so it's the first button!
+            }
+        }
+    } catch (error) {
+        console.error("Error fetching ARP integration status:", error);
+    }
+}
+
 function processTXTRecords(txtRecords) {
     const profileDiv = document.getElementById('profile');
     const nameDiv = document.getElementById('name');
@@ -253,6 +297,21 @@ function processTXTRecords(txtRecords) {
             case 'category':
                 if (categoryDiv) {
                     categoryDiv.innerHTML = `${value}`;
+                }
+                break;
+            case 'arp':
+                if (primaryActionsDiv) {
+                    primaryActionsDiv.innerHTML = `
+                        <a class="action-card" href="https://${value}" target="_blank" style="background: linear-gradient(135deg, rgba(65, 105, 225, 0.2), rgba(65, 105, 225, 0.1)); border-color: rgba(65, 105, 225, 0.4);">
+                            <div class="action-icon" style="background: rgba(65, 105, 225, 0.2);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4169e1" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            </div>
+                            <div class="action-text">
+                                <div class="action-title" style="color: #fff;">Chat Now</div>
+                                <div class="action-sub">ARP Secure Chat</div>
+                            </div>
+                            <div class="action-arrow" style="color: #4169e1;">→</div>
+                        </a>` + primaryActionsDiv.innerHTML;
                 }
                 break;
             case 'agent-manifest':

@@ -104,6 +104,7 @@ The primary goal of this demo is to establish a universal standard for TXT recor
 | `agent-manifest:<url>`    | Link to agent.json manifest    | `agent-manifest:headlessdomains.com/manifests/janice.agent.json` |
 | `skill-md:<url>`          | Link to SKILL.md documentation | `skill-md:headlessdomains.com/skills/janice.agent.md` |
 | `agent-capabilities:...`  | Comma-separated capabilities   | `agent-capabilities:research,data-entry,web-browsing` |
+| `arp:<url>`               | Link to ARP chat interface     | `arp:chat.arp.run/janice.agent` |
 
 ## License
 
