@@ -37,8 +37,8 @@ async function fetchTXTRecords() {
         const domainHeaderDiv = document.getElementById('domain-header');
         if (domainHeaderDiv) {
             domainHeaderDiv.innerHTML = `
-                <span style="font-size: 0.7em; opacity: 0.7; font-family: sans-serif; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px;">Viewing Profile</span>
-                <span style="font-weight: bold;">${domain}</span>
+                <span style="font-size: 0.7em; opacity: 0.7; font-family: sans-serif; text-transform: uppercase; letter-spacing: 1px; display: inline-block; margin-right: 8px;">Viewing Profile</span>
+                <span style="font-weight: bold; color: white;">${domain}</span>
             `;
         }
 
