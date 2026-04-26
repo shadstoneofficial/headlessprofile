@@ -427,7 +427,7 @@ function processTXTRecords(txtRecords) {
             case 'vet':
             case 'xlm':
             case 'xrp':
-                currencies[key] = `<button class="currency-button" onclick="copyToClipboard('${value}')"><img src="img/${key}.png" alt="${key.toUpperCase()} Icon"></button>`;
+                currencies[key] = `<button class="social-btn" onclick="copyToClipboard('${value}')" title="${key.toUpperCase()}"><img src="img/${key}.png" alt="${key}"></button>`;
                 break;
             default:
                 console.warn(`Unhandled record type: ${key}`);

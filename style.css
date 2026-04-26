@@ -350,6 +350,13 @@ body {
 .social-btn img {
     width: 24px;
     height: 24px;
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.social-btn:hover img {
+    opacity: 1;
 }
 
 .social-btn:hover {
