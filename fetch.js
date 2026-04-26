@@ -169,13 +169,35 @@ function processTXTRecords(txtRecords) {
     const nameDiv = document.getElementById('name');
     const categoryDiv = document.getElementById('category');
     const bioDiv = document.getElementById('bio');
+    const capabilitiesDiv = document.getElementById('capabilities');
+    const primaryActionsDiv = document.getElementById('primary-actions');
     const linksDiv = document.getElementById('links');
     const currencyButtonsDiv = document.getElementById('currency-buttons');
+    const rawTxtOutput = document.getElementById('raw-txt-output');
+    const fetchTime = document.getElementById('fetch-time');
     let bgSet = false;
+
+    // Display Raw TXT records
+    if (rawTxtOutput) {
+        rawTxtOutput.textContent = JSON.stringify(txtRecords, null, 2);
+    }
+    
+    // Display fetch timestamp
+    if (fetchTime) {
+        const now = new Date();
+        fetchTime.textContent = `Last Fetched: ${now.toISOString()}`;
+    }
 
     // Set default bio state
     if (bioDiv) {
         bioDiv.innerHTML = '<span style="opacity: 0.5; font-style: italic;">No bio available.</span>';
+    }
+    
+    // Set default name fallback
+    if (nameDiv) {
+        const urlParams = new URLSearchParams(window.location.search);
+        let domainFallback = urlParams.get('domain') || window.location.hostname;
+        nameDiv.innerText = domainFallback;
     }
     const currencies = { 
         btc: null, ln: null, hns: null, eth: null, xmr: null, zec: null, bat: null,
@@ -206,13 +228,14 @@ function processTXTRecords(txtRecords) {
                 break;
             case 'bg':
                 if (!bgSet) {
-                    document.body.style.backgroundImage = `url(https://${value})`;
+                    document.body.style.backgroundImage = `linear-gradient(rgba(11, 15, 18, 0.8), rgba(11, 15, 18, 0.95)), url(https://${value})`;
                     bgSet = true;
                 }
                 break;
             case 'bgcolor':
                 if (!bgSet) {
                     document.body.style.backgroundColor = `#${value}`;
+                    document.body.style.backgroundImage = 'none';
                     bgSet = true;
                 }
                 break;
@@ -229,97 +252,124 @@ function processTXTRecords(txtRecords) {
                 break;
             case 'category':
                 if (categoryDiv) {
-                    categoryDiv.innerHTML = `<span style="display:inline-block; background:rgba(0, 204, 136, 0.2); color:#00cc88; padding:4px 12px; border-radius:12px; font-size:0.85em; font-weight:bold; letter-spacing:0.5px; text-transform:uppercase; border:1px solid rgba(0, 204, 136, 0.5);">${value}</span>`;
+                    categoryDiv.innerHTML = `${value}`;
                 }
                 break;
             case 'agent-manifest':
             case 'manifest':
-                linksDiv.innerHTML += `
-                    <a class="link" href="https://${value}" target="_blank"
-                       style="background: linear-gradient(135deg, #00cc88, #009966); color: white;">
-                        <img src="img/agent.png" alt="Agent Manifest"> Agent Manifest
-                    </a>`;
+                if (primaryActionsDiv) {
+                    primaryActionsDiv.innerHTML += `
+                        <a class="action-card action-purple" href="https://${value}" target="_blank">
+                            <div class="action-icon"><img src="img/agent.png" alt=""></div>
+                            <div class="action-text">
+                                <div class="action-title">agent.json</div>
+                                <div class="action-sub">View agent manifest</div>
+                            </div>
+                            <div class="action-arrow">→</div>
+                        </a>`;
+                }
                 break;
             case 'skill-md':
             case 'skill':
-                linksDiv.innerHTML += `
-                    <a class="link" href="https://${value}" target="_blank"
-                       style="background: linear-gradient(135deg, #ff8800, #cc6600); color: white;">
-                        <img src="img/skill.png" alt="Skill MD"> SKILL.md
-                    </a>`;
+                if (primaryActionsDiv) {
+                    primaryActionsDiv.innerHTML += `
+                        <a class="action-card action-blue" href="https://${value}" target="_blank">
+                            <div class="action-icon"><img src="img/skill.png" alt=""></div>
+                            <div class="action-text">
+                                <div class="action-title">skill.md</div>
+                                <div class="action-sub">View capabilities</div>
+                            </div>
+                            <div class="action-arrow">→</div>
+                        </a>`;
+                }
                 break;
             case 'agent-capabilities':
-                const caps = value.split(',').map(c => c.trim());
-                caps.forEach(cap => {
-                    linksDiv.innerHTML += `
-                        <span class="link" style="background:#444; font-size:0.9em; padding:8px 12px; display:inline-block; margin:4px; border-radius:4px;">
-                            ${cap}
-                        </span>`;
-                });
+                if (capabilitiesDiv) {
+                    const caps = value.split(',').map(c => c.trim());
+                    caps.forEach(cap => {
+                        capabilitiesDiv.innerHTML += `
+                            <span class="cap-chip">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg>
+                                ${cap}
+                            </span>`;
+                    });
+                }
                 break;
             case 'tb':
-                linksDiv.innerHTML += `<button class="link" onclick="copyToClipboard('${value}')"><img src="img/${key}.png" alt="${key.toUpperCase()} Icon"></button>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="#" onclick="copyToClipboard('${value}'); return false;" title="THUNDERBOLT"><img src="img/${key}.png" alt="${key}"></a>`;
                 break;
             case 'onion':
-		linksDiv.innerHTML += `<a class="link" href="http://${value}" target="_blank"><img src="img/onion.png" alt="Onion Icon"></a>`;
-		break;
+                linksDiv.innerHTML += `<a class="social-btn" href="http://${value}" target="_blank" title="ONION"><img src="img/onion.png" alt="Onion"></a>`;
+                break;
             case 'x':
-                linksDiv.innerHTML += `<a class="link" href="https://x.com/${value}" target="_blank"><img src="img/x.png" alt="X Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="https://x.com/${value}" target="_blank" title="X"><img src="img/x.png" alt="X"></a>`;
                 break;
             case 'tg':
-                linksDiv.innerHTML += `<a class="link" href="https://t.me/${value}" target="_blank"><img src="img/tg.png" alt="Telegram Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="https://t.me/${value}" target="_blank" title="TELEGRAM"><img src="img/tg.png" alt="Telegram"></a>`;
                 break;
             case 'wa':
-                linksDiv.innerHTML += `<a class="link" href="https://wa.me/${value}" target="_blank"><img src="img/wa.png" alt="WhatsApp Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="https://wa.me/${value}" target="_blank" title="WHATSAPP"><img src="img/wa.png" alt="WhatsApp"></a>`;
                 break;
             case 'sn':
-                linksDiv.innerHTML += `<a class="link" href="https://signal.me/#p/${value}" target="_blank"><img src="img/sn.png" alt="Signal Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="https://signal.me/#p/${value}" target="_blank" title="SIGNAL"><img src="img/sn.png" alt="Signal"></a>`;
                 break;
             case 'tel':
-                linksDiv.innerHTML += `<a class="link" href="tel:${formattedValue}" target="_blank"><img src="img/tel.png" alt="Phone Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="tel:${formattedValue}" target="_blank" title="PHONE"><img src="img/tel.png" alt="Phone"></a>`;
                 break;
             case 'mail':
-                linksDiv.innerHTML += `<a class="link" href="mailto:${value}" target="_blank"><img src="img/mail.png" alt="Mail Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="mailto:${value}" target="_blank" title="EMAIL"><img src="img/mail.png" alt="Mail"></a>`;
                 break;
             case 'gh':
-                linksDiv.innerHTML += `<a class="link" href="https://github.com/${value}" target="_blank"><img src="img/gh.png" alt="GitHub Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="https://github.com/${value}" target="_blank" title="GITHUB"><img src="img/gh.png" alt="GitHub"></a>`;
                 break;
             case 'link':
-                linksDiv.innerHTML += `<a class="link" href="http://${value}" target="_blank"><img src="img/link.png" alt="Link Icon"></a>`;
+                if (primaryActionsDiv) {
+                    primaryActionsDiv.innerHTML += `
+                        <a class="action-card action-green" href="http://${value}" target="_blank">
+                            <div class="action-icon"><img src="img/link.png" alt=""></div>
+                            <div class="action-text">
+                                <div class="action-title">Visit Website</div>
+                                <div class="action-sub">Open official link</div>
+                            </div>
+                            <div class="action-arrow">→</div>
+                        </a>`;
+                } else {
+                    linksDiv.innerHTML += `<a class="social-btn" href="http://${value}" target="_blank" title="LINK"><img src="img/link.png" alt="Link"></a>`;
+                }
                 break;
             case 'ig':
-                linksDiv.innerHTML += `<a class="link" href="https://www.instagram.com/${value}/" target="_blank"><img src="img/ig.png" alt="Instagram Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="https://www.instagram.com/${value}/" target="_blank" title="INSTAGRAM"><img src="img/ig.png" alt="Instagram"></a>`;
                 break;
             case 'fb':
-                linksDiv.innerHTML += `<a class="link" href="https://www.facebook.com/${value}" target="_blank"><img src="img/fb.png" alt="Facebook Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="https://www.facebook.com/${value}" target="_blank" title="FACEBOOK"><img src="img/fb.png" alt="Facebook"></a>`;
                 break;
             case 'yt':
-                linksDiv.innerHTML += `<a class="link" href="https://www.youtube.com/@${value}" target="_blank"><img src="img/yt.png" alt="Youtube Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="https://www.youtube.com/@${value}" target="_blank" title="YOUTUBE"><img src="img/yt.png" alt="Youtube"></a>`;
                 break;
             case 'rumble':
-                linksDiv.innerHTML += `<a class="link" href="https://rumble.com/${value}" target="_blank"><img src="img/rumble.png" alt="Rumble Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="https://rumble.com/${value}" target="_blank" title="RUMBLE"><img src="img/rumble.png" alt="Rumble"></a>`;
                 break;  
             case 'ens':
-                linksDiv.innerHTML += `<a class="link" href="http://${value}.limo" target="_blank"><img src="img/ens.png" alt="ENS Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="http://${value}.limo" target="_blank" title="ENS"><img src="img/ens.png" alt="ENS"></a>`;
                 break;  
             case 'ipfs':
-                linksDiv.innerHTML += `<a class="link" href="http://${value}.ipfs.dweb.link" target="_blank"><img src="img/ipfs.png" alt="IPFS Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="http://${value}.ipfs.dweb.link" target="_blank" title="IPFS"><img src="img/ipfs.png" alt="IPFS"></a>`;
                 break;
             case 'nostr':
-                linksDiv.innerHTML += `<a class="link" href="nostr:${value}" target="_blank"><img src="img/nostr.png" alt="Nostr Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="nostr:${value}" target="_blank" title="NOSTR"><img src="img/nostr.png" alt="Nostr"></a>`;
                 break;                                          
             case 'pk':
-                linksDiv.innerHTML += `<a class="link" href="http://${value}./" target="_blank"><img src="img/pkdns.png" alt="pkdns Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="http://${value}./" target="_blank" title="PKDNS"><img src="img/pkdns.png" alt="pkdns"></a>`;
                 break;
             case 'matrix':
-                linksDiv.innerHTML += `<a class="link" href="https://matrix.to/#/@${value}:matrix.org" target="_blank"><img src="img/matrix.png" alt="Matrix Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="https://matrix.to/#/@${value}:matrix.org" target="_blank" title="MATRIX"><img src="img/matrix.png" alt="Matrix"></a>`;
                 break;
             case 'sx':
-                linksDiv.innerHTML += `<a class="link" href="https://simplex.chat/contact#/${value.replace(/\s+/g, '')}.onion" target="_blank"><img src="img/simplex.png" alt="SimpleX Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="https://simplex.chat/contact#/${value.replace(/\s+/g, '')}.onion" target="_blank" title="SIMPLEX"><img src="img/simplex.png" alt="SimpleX"></a>`;
                 break;
             case 'bsky':
                 const bskyURL = value.includes('.') ? `https://bsky.app/profile/${value}` : `https://bsky.app/profile/${value}.bsky.social`;
-                linksDiv.innerHTML += `<a class="link" href="${bskyURL}" target="_blank"><img src="img/bsky.png" alt="Bluesky Icon"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="${bskyURL}" target="_blank" title="BLUESKY"><img src="img/bsky.png" alt="Bluesky"></a>`;
                 break;
             case 'btc':
             case 'ln':

@@ -11,58 +11,122 @@
     <link rel="stylesheet" href="style.css?version=1">
 </head>
 <body>
+    <!-- Top Nav -->
+    <header class="top-nav">
+        <div class="logo">
+            <div class="logo-icon">⬡</div>
+            <div class="logo-text">
+                <div class="logo-title">HEADLESS</div>
+                <div class="logo-sub">PROFILES</div>
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="https://directory.headlessprofile.com">Browse Agents</a>
+            <a href="https://headlessprofile.com">Search</a>
+            <a href="https://headlessdomains.com" target="_blank" class="nav-cta">+ Add / Update Listing</a>
+        </div>
+    </header>
+
     <div id="loading" style="display: none; text-align: center; padding-top: 150px; color: white;">
         <div class="spinner"></div>
         <p style="margin-top: 20px; font-size: 1.2em; font-family: monospace;">Fetching TXT records from Handshake DNS...</p>
         <div style="margin-top: 40px; font-family: sans-serif;">
-            <a href="https://directory.headlessprofile.com" target="_blank" style="display: inline-block; background: transparent; color: #00cc88; padding: 10px 20px; text-decoration: none; border-radius: 8px; border: 2px solid #00cc88; font-weight: bold;">
+            <a href="https://directory.headlessprofile.com" target="_blank" style="display: inline-block; background: transparent; color: #19e27d; padding: 10px 20px; text-decoration: none; border-radius: 8px; border: 2px solid #19e27d; font-weight: bold;">
                 While you wait, check out the cached directory ↗
             </a>
         </div>
     </div>
-    <div id="content" style="display: none;">
-        <div id="domain-header" style="text-align: center; padding: 20px 0; margin-bottom: 20px; font-family: monospace; font-size: 1.5em; color: #fff; background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1); border-radius: 0 0 15px 15px;">
-            <!-- Domain name will be injected here -->
+
+    <div id="content" style="display: none;" class="container">
+        <div class="breadcrumb">
+            <a href="https://directory.headlessprofile.com">← Back to Directory</a>
+            <div id="domain-header" style="float:right; font-size: 0.85rem; color: #8b949e; background: #12181d; padding: 4px 12px; border-radius: 12px; border: 1px solid #1e262d;"></div>
         </div>
-        <div class="profile" id="profile"></div>
-        <div id="name" style="text-align: center; margin-top: 15px; margin-bottom: 10px; font-size: 2em; font-weight: bold; color: white;"></div>
-        <div id="category" style="text-align: center; margin-top: 5px; margin-bottom: 15px;"></div>
-        <div id="bio" style="text-align: center; max-width: 600px; margin: 15px auto 30px auto; color: #ccc; font-size: 1.1em; line-height: 1.5; padding: 0 20px;"></div>
-        <div class="links" id="links"></div>
-        <div class="currency-buttons" id="currency-buttons"></div>
-        <div id="directory-actions" style="text-align: center; margin-top: 20px;">
-            <!-- Actions will be injected here via JS -->
-        </div>
-        <div style="text-align: center; margin-top: 40px; padding-bottom: 20px;">
-            <div style="margin-bottom: 15px;">
-                <a href="https://directory.headlessprofile.com" target="_blank" style="color:#0f0; text-decoration: none; font-weight: bold;">
-                    → Browse All Agents in Directory
-                </a>
+
+        <!-- Hero Section -->
+        <div class="card hero-card">
+            <div id="profile" class="profile-ring"></div>
+            <div class="hero-info">
+                <div class="name-row">
+                    <h1 id="name"></h1>
+                    <span class="verified-badge">✔</span>
+                </div>
+                <div class="tags-row">
+                    <div id="category" class="tag-category"></div>
+                    <span class="tag-sub">Agentic Identity on Handshake</span>
+                </div>
+                <div id="bio" class="bio-text"></div>
+                <div id="capabilities" class="capabilities-row"></div>
             </div>
-            <div style="margin-bottom: 40px;">
-                <a href="https://headlessprofile.com" style="color:#0f0; text-decoration: none; font-weight: bold;">
-                    → Search More In Headless Profile
-                </a>
+        </div>
+
+        <!-- Primary Actions (Manifest, Skill, Website) -->
+        <div id="primary-actions" class="primary-actions"></div>
+
+        <!-- Socials & Other Links -->
+        <div id="links" class="links-grid"></div>
+
+        <!-- Crypto -->
+        <div id="currency-buttons" class="links-grid"></div>
+
+        <!-- Manage Card -->
+        <div class="card manage-card">
+            <div class="manage-info">
+                <h3><span style="color:#19e27d">📌</span> Manage in Directory</h3>
+                <p>Add or update this agent listing in the Headless Profile directory.</p>
+            </div>
+            <div id="directory-actions"></div>
+        </div>
+
+        <!-- Raw TXT Records Card -->
+        <div class="card" style="padding-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;"><span style="color:#19e27d">⚙️</span> Raw TXT Records</h3>
+                <button onclick="window.location.reload()" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;">↻ Force Refresh</button>
+            </div>
+            <p style="margin: 0 0 16px 0; color: var(--text-muted); font-size: 0.9rem;">Having sync issues? Check exactly what DNS records we found below.</p>
+            
+            <div style="background: #0d1320; border-radius: 8px; padding: 16px; overflow-x: auto;">
+                <pre id="raw-txt-output" style="margin: 0; color: #86f29a; font-family: monospace; font-size: 0.9rem; line-height: 1.5;"></pre>
             </div>
             
-            <!-- Promotional Banner -->
-            <div style="margin: 0 auto 30px auto; max-width: 400px;">
-                <a href="https://headlessdomains.com" target="_blank" style="display: block; background: linear-gradient(135deg, #1a1a1a, #2a2a2a); border: 1px solid #00cc88; border-radius: 12px; padding: 15px 20px; text-decoration: none; color: white; box-shadow: 0 4px 15px rgba(0, 204, 136, 0.15); transition: transform 0.2s ease;">
-                    <span style="display: block; font-size: 1.1em; font-weight: bold; margin-bottom: 5px; color: #00cc88;">
-                        🚀 Get Your Own Agentic Domain
-                    </span>
-                    <span style="display: block; font-size: 0.9em; opacity: 0.9;">
-                        Buy / Update your .agent domain at <span style="text-decoration: underline;">HeadlessDomains.com</span>
-                    </span>
-                </a>
-            </div>
-
-            <!-- Credits Section -->
-            <div style="font-size: 0.85em; opacity: 0.7; font-family: sans-serif; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; display: inline-block;">
-                <p style="margin: 0 0 5px 0;">Powered by <a href="https://handshake.org" target="_blank" style="color: #fff; text-decoration: underline;">Handshake HNS</a></p>
-                <p style="margin: 0;">Source code <a href="https://hns.bio" target="_blank" style="color: #fff; text-decoration: underline;">HNS.bio</a></p>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 0.75rem; color: var(--text-muted);">
+                <span id="fetch-time"></span>
+                <span>Data fetched via Shakestation</span>
             </div>
         </div>
+
+        <!-- Explore Card -->
+        <div class="card explore-card">
+            <h3><span style="color:#19e27d">🧭</span> Explore More</h3>
+            <a href="https://directory.headlessprofile.com" class="explore-link">
+                <div>
+                    <h4>Browse All Agents in Directory</h4>
+                    <p>Discover verified agents from around the world</p>
+                </div>
+                <span style="color:#8b949e">→</span>
+            </a>
+            <a href="https://headlessprofile.com" class="explore-link">
+                <div>
+                    <h4>Search More in Headless Profile</h4>
+                    <p>Find agents using Headless Profile</p>
+                </div>
+                <span style="color:#8b949e">→</span>
+            </a>
+        </div>
+
+        <!-- Promo Banner -->
+        <div class="promo-banner">
+            <h2>✨ Get Your Own <span class="highlight">.agent</span> Domain</h2>
+            <p>Claim your identity in the agentic web.</p>
+            <a href="https://headlessdomains.com" target="_blank" class="btn-solid-green" style="text-decoration:none; display:inline-block;">Learn More at HeadlessDomains.com ↗</a>
+        </div>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            Powered by <a href="https://headlessdomains.com" target="_blank">Headless Domains</a> &bull; 
+            Source code <a href="https://hns.bio" target="_blank">HNS.bio</a>
+        </footer>
     </div>
     <script src="fetch.js"></script>
 </body>
