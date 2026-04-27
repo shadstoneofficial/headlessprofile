@@ -184,6 +184,27 @@ function formatPhoneNumber(phone) {
     return phone; // Return unchanged if none of the conditions apply
 }
 
+// Helper function to decode DNS decimal escapes (e.g. \226\128\148) to UTF-8
+function decodeDNSEscapes(str) {
+    let bytes = [];
+    for (let i = 0; i < str.length; i++) {
+        if (str[i] === '\\' && i + 3 < str.length && /^\d{3}$/.test(str.substring(i+1, i+4))) {
+            bytes.push(parseInt(str.substring(i+1, i+4), 10));
+            i += 3;
+        } else if (str[i] === '\\' && i + 1 < str.length) {
+            bytes.push(str.charCodeAt(i+1));
+            i++;
+        } else {
+            bytes.push(str.charCodeAt(i));
+        }
+    }
+    try {
+        return new TextDecoder('utf-8').decode(new Uint8Array(bytes));
+    } catch (e) {
+        return str;
+    }
+}
+
 // Function to fetch and display ARP Integration Status
 async function fetchARPIntegration(domain) {
     const arpBadgeDiv = document.getElementById('arp-badge');
@@ -273,8 +294,9 @@ function processTXTRecords(txtRecords, originalDomain) {
     };
 
     txtRecords.forEach(record => {
-        let separator = record.includes('=') ? '=' : ':';
-        const [key, ...valueParts] = record.split(separator);
+        let decodedRecord = decodeDNSEscapes(record);
+        let separator = decodedRecord.includes('=') ? '=' : ':';
+        const [key, ...valueParts] = decodedRecord.split(separator);
         const value = valueParts.join(separator);
         let formattedValue = value;
 
@@ -305,10 +327,16 @@ function processTXTRecords(txtRecords, originalDomain) {
                     nameDiv.innerText = value;
                 }
                 break;
+            case 'custom':
             case 'bio':
             case 'description':
                 if (bioDiv) {
-                    bioDiv.innerText = value;
+                    if (bioDiv.innerText.trim() !== '') {
+                        // If there's already text (e.g. they have both 'bio' and 'custom'), append it with a line break
+                        bioDiv.innerText += '\n\n' + value;
+                    } else {
+                        bioDiv.innerText = value;
+                    }
                 }
                 break;
             case 'category':

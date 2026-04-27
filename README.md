@@ -35,6 +35,7 @@ TXT record prefixes standardize how information is structured and interpreted, m
 | `name:<text>`                | Display name                     | `name:Janice The Agent`    |
 | `category:<text>`            | Main classification/category     | `category:Sales Agent`     |
 | `bio:<text>`                 | Short biography or description (max ~250 chars) | `bio:Decentralized AI Agent` |
+| `custom:<text>`              | Alias for bio/description        | `custom:Agent Bio here`    |
 | `bgcolor:<hex>`              | Background color in HEX format   | `bgcolor:ffffff`           |
 | `bg:<url>`                   | Background image URL             | `bg:example.com/bg_img.png`|
 
