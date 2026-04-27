@@ -18,15 +18,28 @@ async function fetchTXTRecords() {
         domain = fullHostname;  // fallback
     }
 
-    document.title = domain;
+    // Convert Emoji/Unicode to Punycode using the imported library
+    let punycodeDomain = domain;
+    try {
+        if (window.punycode) {
+            punycodeDomain = punycode.toASCII(domain);
+        } else {
+            // Native fallback if CDN fails (modern browsers)
+            punycodeDomain = new URL('http://' + domain).hostname;
+        }
+    } catch (e) {
+        console.error("Punycode conversion failed", e);
+    }
+
+    document.title = domain; // Keep the display name nice and pretty with emojis
 
     // Show loading state
     const loadingDiv = document.getElementById('loading');
     const contentDiv = document.getElementById('content');
     if (loadingDiv) loadingDiv.style.display = 'block';
 
-    // Fetch and process the root domain's records
-    const txtRecords = await fetchAndProcessTXTRecords(domain);
+    // Fetch and process the root domain's records using Punycode
+    const txtRecords = await fetchAndProcessTXTRecords(punycodeDomain);
 
     if (txtRecords) {
         // Apply dynamic favicon and CSS
@@ -42,8 +55,8 @@ async function fetchTXTRecords() {
             `;
         }
 
-        // Process and display the fetched records
-        processTXTRecords(txtRecords);
+        // Process and display the fetched records using original domain for rendering
+        processTXTRecords(txtRecords, domain);
 
         // Fetch ARP Integration Status
         await fetchARPIntegration(domain);
@@ -56,7 +69,11 @@ async function fetchTXTRecords() {
         txtRecords.forEach(record => {
             if (record.startsWith("ext:")) {
                 const externalDomain = record.split("ext:")[1];
-                fetchAndProcessTXTRecords(externalDomain).then(processTXTRecords);
+                let punyExternal = externalDomain;
+                try {
+                    punyExternal = window.punycode ? punycode.toASCII(externalDomain) : new URL('http://' + externalDomain).hostname;
+                } catch(e) {}
+                fetchAndProcessTXTRecords(punyExternal).then(records => processTXTRecords(records, domain));
             }
         });
     }
@@ -208,7 +225,7 @@ async function fetchARPIntegration(domain) {
     }
 }
 
-function processTXTRecords(txtRecords) {
+function processTXTRecords(txtRecords, originalDomain) {
     const profileDiv = document.getElementById('profile');
     const nameDiv = document.getElementById('name');
     const categoryDiv = document.getElementById('category');
@@ -222,7 +239,7 @@ function processTXTRecords(txtRecords) {
     let bgSet = false;
 
     // Display Raw TXT records
-    if (rawTxtOutput) {
+    if (rawTxtOutput && txtRecords) {
         rawTxtOutput.textContent = JSON.stringify(txtRecords, null, 2);
     }
     
@@ -232,6 +249,8 @@ function processTXTRecords(txtRecords) {
         fetchTime.textContent = `Last Fetched: ${now.toISOString()}`;
     }
 
+    if (!txtRecords) return;
+
     // Set default bio state
     if (bioDiv) {
         bioDiv.innerHTML = '';
@@ -239,9 +258,7 @@ function processTXTRecords(txtRecords) {
     
     // Set default name fallback
     if (nameDiv) {
-        const urlParams = new URLSearchParams(window.location.search);
-        let domainFallback = urlParams.get('domain') || window.location.hostname;
-        nameDiv.innerText = domainFallback;
+        nameDiv.innerText = originalDomain || window.location.hostname;
     }
     const currencies = { 
         btc: null, ln: null, hns: null, eth: null, xmr: null, zec: null, bat: null,
@@ -516,7 +533,7 @@ function processTXTRecords(txtRecords) {
         fetch('https://directory.headlessprofile.com/api/index', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ domain })
+            body: JSON.stringify({ domain: originalDomain || domain }) // Pass original emoji domain
         }).catch(() => {}); // silent fail — don't break the viewer
     }
 }
@@ -574,6 +591,9 @@ function showLandingPage() {
 }
 
 function goToDomain() {
-    const input = document.getElementById('domainInput').value.trim();
-    if (input) window.location.href = `https://headlessprofile.com/?domain=${input}`;
+    let input = document.getElementById('domainInput').value.trim();
+    if (input) {
+        // Make sure we pass the raw emoji text via URL encoding
+        window.location.href = `https://headlessprofile.com/?domain=${encodeURIComponent(input)}`;
+    }
 }
