@@ -234,7 +234,7 @@ function processTXTRecords(txtRecords) {
 
     // Set default bio state
     if (bioDiv) {
-        bioDiv.innerHTML = '<span style="opacity: 0.5; font-style: italic;">No bio available.</span>';
+        bioDiv.innerHTML = '';
     }
     
     // Set default name fallback
@@ -499,17 +499,6 @@ function processTXTRecords(txtRecords) {
         }
     });
 
-    // Add Directory Button
-    const directoryActionsDiv = document.getElementById('directory-actions');
-    if (directoryActionsDiv) {
-        directoryActionsDiv.innerHTML = `
-            <button id="index-btn" onclick="indexToDirectory()" 
-                    style="background:#00cc88; color:white; padding:12px 24px; border:none; border-radius:8px; margin-top:20px; cursor:pointer; font-weight:bold; font-size:1.1em; transition: all 0.3s;">
-                📌 Add / Update in Directory
-            </button>
-        `;
-    }
-
     // Auto-index to directory (silent)
     const urlParams = new URLSearchParams(window.location.search);
     let domain = urlParams.get('domain');
@@ -517,6 +506,12 @@ function processTXTRecords(txtRecords) {
         domain = window.location.hostname;
     }
     
+    // Set the Directory permalink button
+    const directoryLink = document.getElementById('directory-link');
+    if (directoryLink) {
+        directoryLink.href = `https://directory.headlessprofile.com/entry/${domain}`;
+    }
+
     if (domain && domain !== 'headlessprofile.com' && !domain.includes('netlify') && !domain.includes('headlessprofiles.com')) {
         fetch('https://directory.headlessprofile.com/api/index', {
             method: 'POST',
@@ -525,55 +520,6 @@ function processTXTRecords(txtRecords) {
         }).catch(() => {}); // silent fail — don't break the viewer
     }
 }
-
-function indexToDirectory() {
-    const urlParams = new URLSearchParams(window.location.search);
-    let domain = urlParams.get('domain');
-    if (!domain) {
-        domain = window.location.hostname;
-    }
-
-    if (domain) {
-        const btn = document.getElementById('index-btn');
-        if (btn) {
-            btn.disabled = true;
-            btn.innerHTML = `<span class="spinner" style="width:16px; height:16px; border-width:3px; display:inline-block; vertical-align:middle; margin-right:8px; border-top-color: white;"></span> Indexing... please wait`;
-            btn.style.opacity = '0.7';
-            btn.style.cursor = 'wait';
-        }
-
-        fetch('https://directory.headlessprofile.com/api/index', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ domain })
-        })
-        .then(response => {
-            if (response.ok) {
-                // Redirect on success to the newly indexed directory page
-                window.location.href = `https://directory.headlessprofile.com/entry/${domain}`;
-            } else {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = `📌 Add / Update in Directory`;
-                    btn.style.opacity = '1';
-                    btn.style.cursor = 'pointer';
-                }
-                alert('Failed to update directory.');
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = `📌 Add / Update in Directory`;
-                btn.style.opacity = '1';
-                btn.style.cursor = 'pointer';
-            }
-            alert('Error updating directory.');
-        });
-    }
-}
-
 
 function copyToClipboard(text) {
     if (navigator.clipboard && window.isSecureContext) {
