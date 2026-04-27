@@ -559,19 +559,18 @@ function fallbackCopyToClipboard(text) {
 window.onload = fetchTXTRecords;
 
 function showLandingPage() {
-    document.body.innerHTML = `
-        <div style="text-align:center; padding:100px 20px; color:white;">
-            <h1>🧠 Headless Profile</h1>
-            <p style="font-size:1.3em;">Decentralized AI Agent + Human Identity Viewer</p>
-            <p>Try it with any Handshake domain:</p>
-            <input type="text" id="domainInput" placeholder="janice.agent" style="padding:12px; width:100%; max-width:300px; font-size:1.1em; box-sizing: border-box;" onkeydown="if(event.key === 'Enter') goToDomain()">
-            <button onclick="goToDomain()" style="padding:12px 24px; font-size:1.1em; cursor:pointer; margin-top:10px;">View Profile →</button>
-            
-            <p style="margin-top:60px; opacity:0.8;">
-                Fork of <a href="https://hns.bio" style="color:#0f0">hns.bio</a> • Enhanced for AI Agents
-            </p>
-        </div>
-    `;
+    const loadingDiv = document.getElementById('loading');
+    if (loadingDiv) loadingDiv.style.display = 'none';
+    
+    const landingDiv = document.getElementById('landing');
+    if (landingDiv) {
+        landingDiv.style.display = 'flex';
+        // Auto-focus input for convenience
+        setTimeout(() => {
+            const input = document.getElementById('domainInput');
+            if (input) input.focus();
+        }, 100);
+    }
 }
 
 function goToDomain() {

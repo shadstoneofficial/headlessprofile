@@ -459,6 +459,11 @@ body {
     margin: 0 0 24px 0;
 }
 
+#domainInput:focus {
+    border-color: var(--accent-green) !important;
+    box-shadow: 0 0 15px rgba(25, 226, 125, 0.15);
+}
+
 /* Footer */
 .site-footer {
     text-align: center;

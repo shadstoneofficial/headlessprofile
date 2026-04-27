@@ -37,6 +37,34 @@
         </div>
     </div>
 
+    <!-- Landing Page -->
+    <div id="landing" class="container" style="display: none; min-height: 75vh; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+        <div style="margin-bottom: 40px;">
+            <div style="font-size: 5rem; color: #19e27d; line-height: 1; text-shadow: 0 0 30px rgba(25, 226, 125, 0.3);">⬡</div>
+            <h1 style="font-size: 3rem; margin: 10px 0 5px 0; letter-spacing: 2px; color: white;">HEADLESS <span style="color: #8b949e; font-weight: 300;">PROFILE</span></h1>
+            <p style="color: #19e27d; font-family: monospace; letter-spacing: 1px; text-transform: uppercase; font-size: 1rem; margin: 0;">Agentic Identity on Handshake</p>
+        </div>
+
+        <div class="card" style="width: 100%; max-width: 550px; padding: 40px; background: rgba(18, 24, 29, 0.6); backdrop-filter: blur(10px); border: 1px solid #1e262d; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+            <p style="color: #8b949e; margin: 0 0 24px 0; font-size: 1.1rem;">Enter a domain to view its profile:</p>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <input type="text" id="domainInput" placeholder="e.g. janice.agent" onkeydown="if(event.key === 'Enter') goToDomain()" style="padding: 16px 20px; border-radius: 12px; border: 1px solid #1e262d; background: #0b0f12; color: white; font-size: 1.2rem; outline: none; transition: all 0.2s; text-align: center; font-family: monospace;">
+                <button onclick="goToDomain()" class="btn-solid-green" style="width: 100%; padding: 16px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+                    View Profile
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; display: flex; gap: 20px; color: #8b949e; font-size: 0.9rem; flex-wrap: wrap; justify-content: center;">
+            <a href="https://directory.headlessprofile.com" style="color: #19e27d; text-decoration: none;">Browse Directory</a>
+            <span style="opacity: 0.5;">•</span>
+            <a href="https://headlessdomains.com" style="color: #19e27d; text-decoration: none;">Get a Domain</a>
+            <span style="opacity: 0.5;">•</span>
+            <a href="https://hns.bio" style="color: #8b949e; text-decoration: none;">Fork of HNS.bio</a>
+        </div>
+    </div>
+
     <div id="content" style="display: none;" class="container">
         <div class="breadcrumb" style="display: flex; justify-content: space-between; align-items: center;">
             <div id="domain-header" style="font-size: 0.85rem; color: #8b949e; background: #12181d; padding: 4px 12px; border-radius: 12px; border: 1px solid #1e262d;"></div>
