@@ -130,40 +130,149 @@ async function setDynamicCSS(txtRecords) {
 }
 
 async function fetchAndProcessTXTRecords(domain) {
-    const url = `https://resolve.shakestation.io/dns-query?name=${domain}&type=TXT`;
-        // alternative node: const url = `https://api.web3dns.net/?name=${domain}&type=TXT`;
+    const urls = [
+        `https://resolve.shakestation.io/dns-query?name=${domain}&type=TXT`,
+        `https://hnsdoh.com/dns-query?name=${domain}&type=TXT`
+    ];
+
+    let data = null;
+    let lastError = null;
+
+    // Helper to generate a basic DNS query in base64url for hnsdoh
+    function buildBase64DNSQuery(domain) {
+        // Simple manual construction of a DNS wire query for TXT (type 16)
+        const parts = domain.split('.');
+        let qname = '';
+        for (let p of parts) {
+            qname += String.fromCharCode(p.length) + p;
+        }
+        qname += '\0';
         
-    console.log("Fetch URL:", url);
+        // Transaction ID: 0x0000, Flags: 0x0100 (Standard query), QDCOUNT: 1, ANCOUNT: 0, NSCOUNT: 0, ARCOUNT: 0
+        const header = '\x00\x00\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00';
+        const qtype = '\x00\x10'; // TXT = 16
+        const qclass = '\x00\x01'; // IN = 1
+        
+        const wire = header + qname + qtype + qclass;
+        return btoa(wire).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
 
-    try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: { 'Accept': 'application/dns-json' }
-        });
+    for (const url of urls) {
+        console.log("Trying Fetch URL:", url);
+        try {
+            let finalUrl = url;
+            let headers = { 'Accept': 'application/dns-json' };
+            let responseType = 'json';
 
-        if (!response.ok) {
-            throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+            // Special handling for hnsdoh which requires base64 DNS wire format
+            if (url.includes('hnsdoh.com')) {
+                const b64Query = buildBase64DNSQuery(domain);
+                finalUrl = `https://hnsdoh.com/dns-query?dns=${b64Query}`;
+                headers = { 'Accept': 'application/dns-message' };
+                responseType = 'arraybuffer';
+            }
+
+            const response = await fetch(finalUrl, {
+                method: 'GET',
+                headers: headers
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+            }
+
+            if (responseType === 'json') {
+                data = await response.json();
+                console.log("DNS Response (JSON):", data);
+                if (data.Answer) {
+                    // Inject the resolver used
+                    const resolverUsedDiv = document.getElementById('resolver-used');
+                    if (resolverUsedDiv) {
+                        resolverUsedDiv.innerText = `Resolved via: ${new URL(finalUrl).hostname}`;
+                    }
+
+                    break;
+                } else {
+                    throw new Error("No TXT records in JSON response");
+                }
+            } else {
+                // Parse binary DNS wire format from hnsdoh
+                const buffer = await response.arrayBuffer();
+                const bytes = new Uint8Array(buffer);
+                
+                // Extremely simple binary extraction for TXT records (naive approach for fallback)
+                let extractedStrings = [];
+                let i = 0;
+                while (i < bytes.length) {
+                    // Look for standard length prefixes for strings within the TXT RDATA
+                    // This is a highly simplified regex-like approach in JS to mimic the Python re.findall
+                    const char = String.fromCharCode(bytes[i]);
+                    if (/[a-zA-Z0-9:/._=@+-]/.test(char)) {
+                        let str = "";
+                        while (i < bytes.length && /[a-zA-Z0-9:/._=@+-]/.test(String.fromCharCode(bytes[i]))) {
+                            str += String.fromCharCode(bytes[i]);
+                            i++;
+                        }
+                        if (str.length >= 6 && (str.includes(':') || str.includes('='))) {
+                            extractedStrings.push(str);
+                        }
+                    } else {
+                        i++;
+                    }
+                }
+                
+                if (extractedStrings.length > 0) {
+                    data = { Answer: extractedStrings.map(s => ({ type: 16, data: s })) };
+                    console.log("DNS Response (Binary Extracted):", data);
+                    
+                    // Inject the resolver used
+                    const resolverUsedDiv = document.getElementById('resolver-used');
+                    if (resolverUsedDiv) {
+                        resolverUsedDiv.innerText = `Resolved via: ${new URL(finalUrl).hostname}`;
+                    }
+
+                    break;
+                } else {
+                    throw new Error("No valid TXT records extracted from binary response");
+                }
+            }
+        } catch (error) {
+            console.warn(`Failed fetching from ${url}:`, error);
+            lastError = error;
         }
+    }
 
-        const data = await response.json();
-        console.log("DNS Response:", data);
-
-        if (data.Answer && data.Answer.length > 0) {
-            return data.Answer
-                .filter(record => record.type === 16)
-                .map(record => record.data.replace(/"/g, ''));
-        } else {
-            console.error("No TXT records found in DNS response.");
-            const loadingDiv = document.getElementById('loading');
-            if (loadingDiv) loadingDiv.style.display = 'none';
-            document.body.innerHTML = `<p style="text-align:center; padding:50px; color:white;">No TXT records found for this domain.</p><br><div style="text-align:center;"><a style="color: #fff; text-decoration: underline;" href="https://github.com/H4ckB4s3/hns-bio">Do you need help seting up your DID? Check the full documentation</a></div>`;
-            return null;
-        }
-    } catch (error) {
-        console.error("Fetch Error:", error);
+    if (!data) {
+        console.error("All Fetch Attempts Failed:", lastError);
         const loadingDiv = document.getElementById('loading');
         if (loadingDiv) loadingDiv.style.display = 'none';
-        document.body.innerHTML = `<p style="text-align:center; padding:50px; color:white;">An error occurred while fetching TXT records: ${error.message}</p><br><div style="text-align:center;"><a style="color: #fff; text-decoration: underline;" href="https://github.com/H4ckB4s3/hns-bio">Do you need help seting up your DID? Check the full documentation</a></div>`;
+        document.body.innerHTML = `
+            <div style="text-align:center; padding:100px 20px; color:white; font-family: monospace;">
+                <h2 style="color: #ff4444;">Error Fetching Domain</h2>
+                <p style="font-size:1.1em; color: #8b949e;">An error occurred while fetching TXT records: ${lastError ? lastError.message : 'Unknown Error'}</p>
+                <br>
+                <a href="https://directory.headlessprofile.com/docs" style="color: #19e27d; text-decoration: none; border: 1px solid #19e27d; padding: 10px 20px; border-radius: 8px;">View Documentation</a>
+            </div>
+        `;
+        return null;
+    }
+
+    if (data.Answer && data.Answer.length > 0) {
+        return data.Answer
+            .filter(record => record.type === 16)
+            .map(record => record.data.replace(/"/g, ''));
+    } else {
+        console.error("No TXT records found in DNS response.");
+        const loadingDiv = document.getElementById('loading');
+        if (loadingDiv) loadingDiv.style.display = 'none';
+        document.body.innerHTML = `
+            <div style="text-align:center; padding:100px 20px; color:white; font-family: monospace;">
+                <h2>No Records Found</h2>
+                <p style="font-size:1.1em; color: #8b949e;">No TXT records found for <strong>${domain}</strong>.</p>
+                <br>
+                <a href="https://directory.headlessprofile.com/docs" style="color: #19e27d; text-decoration: none; border: 1px solid #19e27d; padding: 10px 20px; border-radius: 8px;">Learn how to set up your profile</a>
+            </div>
+        `;
         return null;
     }
 }
