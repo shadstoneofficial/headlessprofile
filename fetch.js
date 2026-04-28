@@ -58,8 +58,8 @@ async function fetchTXTRecords() {
         // Process and display the fetched records using original domain for rendering
         processTXTRecords(txtRecords, domain);
 
-        // Fetch ARP Integration Status
-        await fetchARPIntegration(domain);
+        // Fetch external API Integrations (ARP, MPP)
+        await fetchAPIIntegrations(domain);
 
         // Hide loading state, show content
         if (loadingDiv) loadingDiv.style.display = 'none';
@@ -314,10 +314,12 @@ function decodeDNSEscapes(str) {
     }
 }
 
-// Function to fetch and display ARP Integration Status
-async function fetchARPIntegration(domain) {
+// Function to fetch and display API Integrations (ARP, MPP Commerce)
+async function fetchAPIIntegrations(domain) {
     const arpBadgeDiv = document.getElementById('arp-badge');
+    const mppBadgeDiv = document.getElementById('mpp-badge');
     const primaryActionsDiv = document.getElementById('primary-actions');
+    const currencyButtonsDiv = document.getElementById('currency-buttons');
 
     if (!domain) return;
 
@@ -327,15 +329,14 @@ async function fetchARPIntegration(domain) {
 
         const data = await response.json();
         
+        // 1. ARP Chat Integration
         if (data.status === "success" && data.integrations && data.integrations.arp_chat && data.integrations.arp_chat.enabled) {
             const chatUrl = data.integrations.arp_chat.url || `https://chat.arp.run/${domain}`;
             
-            // 1. Show the "ARP Chat Enabled" badge under the tags
             if (arpBadgeDiv) {
                 arpBadgeDiv.style.display = 'block';
             }
 
-            // 2. Add the "Chat Now" CTA button to the primary actions grid
             if (primaryActionsDiv) {
                 primaryActionsDiv.innerHTML = `
                     <a class="action-card" href="${chatUrl}" target="_blank" style="background: linear-gradient(135deg, rgba(65, 105, 225, 0.2), rgba(65, 105, 225, 0.1)); border-color: rgba(65, 105, 225, 0.4);">
@@ -347,11 +348,29 @@ async function fetchARPIntegration(domain) {
                             <div class="action-sub">ARP Secure Chat</div>
                         </div>
                         <div class="action-arrow" style="color: #4169e1;">→</div>
-                    </a>` + primaryActionsDiv.innerHTML; // Prepend it so it's the first button!
+                    </a>` + primaryActionsDiv.innerHTML;
+            }
+        }
+
+        // 2. Agentic Commerce (MPP) Integration
+        const commerceData = (data.agent && data.agent.commerce) || data.commerce || (data.profile && data.profile.commerce);
+        if (commerceData && commerceData.mpp_enabled) {
+            // Show Agentic Commerce Badge
+            if (mppBadgeDiv) {
+                mppBadgeDiv.style.display = 'block';
+            }
+
+            // Expose Tempo Address in Currency grid
+            if (commerceData.tempo_address && currencyButtonsDiv) {
+                // Add Tempo/pathUSD payment button
+                currencyButtonsDiv.innerHTML += `
+                    <button class="social-btn" onclick="copyToClipboard('${commerceData.tempo_address}')" title="TEMPO / PATHUSD" style="border-color: #19e27d;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#19e27d" stroke-width="2" style="filter: none;"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>
+                    </button>`;
             }
         }
     } catch (error) {
-        console.error("Error fetching ARP integration status:", error);
+        console.error("Error fetching API integrations:", error);
     }
 }
 
