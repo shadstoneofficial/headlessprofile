@@ -318,6 +318,7 @@ function decodeDNSEscapes(str) {
 async function fetchAPIIntegrations(domain) {
     const arpBadgeDiv = document.getElementById('arp-badge');
     const mppBadgeDiv = document.getElementById('mpp-badge');
+    const flagBadgeDiv = document.getElementById('flag-badge');
     const primaryActionsDiv = document.getElementById('primary-actions');
     const currencyButtonsDiv = document.getElementById('currency-buttons');
 
@@ -328,6 +329,19 @@ async function fetchAPIIntegrations(domain) {
         if (!response.ok) return; // Silent fail if API is down or domain not found
 
         const data = await response.json();
+        
+        // 0. Check Headless Court Flag Status
+        const flagStatus = (data.agent && data.agent.flag_status) || (data.domain && data.domain.flag_status) || data.flag_status;
+        if (flagStatus && flagStatus !== 'null' && flagStatus !== null) {
+            if (flagBadgeDiv) {
+                const badgeSpan = flagBadgeDiv.querySelector('span');
+                if (badgeSpan) {
+                    const displayStatus = flagStatus.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    badgeSpan.innerHTML = `⚠️ ${displayStatus} (Headless Court)`;
+                }
+                flagBadgeDiv.style.display = 'block';
+            }
+        }
         
         // 1. ARP Chat Integration
         if (data.status === "success" && data.integrations && data.integrations.arp_chat && data.integrations.arp_chat.enabled) {
