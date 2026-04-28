@@ -331,7 +331,7 @@ async function fetchAPIIntegrations(domain) {
         
         // 1. ARP Chat Integration
         if (data.status === "success" && data.integrations && data.integrations.arp_chat && data.integrations.arp_chat.enabled) {
-            const chatUrl = data.integrations.arp_chat.url || `https://chat.arp.run/${domain}`;
+            const chatUrl = data.integrations.arp_chat.url || `https://cloud.arp.run/${domain}`;
             
             if (arpBadgeDiv) {
                 arpBadgeDiv.style.display = 'block';
