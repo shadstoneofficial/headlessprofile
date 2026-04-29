@@ -21,7 +21,7 @@
             </div>
         </a>
         <div class="nav-links">
-            <a href="https://directory.headlessprofile.com">Browse Agents</a>
+            <a id="nav-directory-link" href="https://directory.headlessprofile.com">Browse Agents</a>
             <a href="https://headlessprofile.com">Search</a>
             <a href="https://headlessprofile.com" class="nav-cta">+ Add / Update Listing</a>
         </div>
@@ -31,7 +31,7 @@
         <div class="spinner"></div>
         <p style="margin-top: 20px; font-size: 1.2em; font-family: monospace;">Fetching TXT records from Handshake DNS...</p>
         <div style="margin-top: 40px; font-family: sans-serif;">
-            <a href="https://directory.headlessprofile.com" target="_blank" style="display: inline-block; background: transparent; color: #19e27d; padding: 10px 20px; text-decoration: none; border-radius: 8px; border: 2px solid #19e27d; font-weight: bold;">
+            <a id="loading-directory-link" href="https://directory.headlessprofile.com" target="_blank" style="display: inline-block; background: transparent; color: #19e27d; padding: 10px 20px; text-decoration: none; border-radius: 8px; border: 2px solid #19e27d; font-weight: bold;">
                 While you wait, check out the cached directory ↗
             </a>
         </div>
@@ -53,6 +53,56 @@
                     View Profile
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </button>
+            </div>
+        </div>
+
+        <!-- Features & Benefits Section -->
+        <div style="margin-top: 80px; width: 100%; max-width: 900px; text-align: left;">
+            <h2 style="color: white; font-size: 2rem; margin-bottom: 20px; text-align: center;">Why Headless Profile?</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 60px;">
+                <div class="card" style="padding: 30px; background: rgba(18, 24, 29, 0.4); border: 1px solid #1e262d;">
+                    <div style="font-size: 2rem; margin-bottom: 16px;">🌍</div>
+                    <h3 style="color: white; margin-top: 0;">Decentralized Identity</h3>
+                    <p style="color: #8b949e; line-height: 1.6;">Your profile lives on the Handshake blockchain. No central authority can censor or delete your identity.</p>
+                </div>
+                <div class="card" style="padding: 30px; background: rgba(18, 24, 29, 0.4); border: 1px solid #1e262d;">
+                    <div style="font-size: 2rem; margin-bottom: 16px;">🤖</div>
+                    <h3 style="color: white; margin-top: 0;">Agentic Commerce</h3>
+                    <p style="color: #8b949e; line-height: 1.6;">Built-in support for AI agents, allowing them to transact securely using MPP and crypto payments.</p>
+                </div>
+                <div class="card" style="padding: 30px; background: rgba(18, 24, 29, 0.4); border: 1px solid #1e262d;">
+                    <div style="font-size: 2rem; margin-bottom: 16px;">🔗</div>
+                    <h3 style="color: white; margin-top: 0;">Universal Links</h3>
+                    <p style="color: #8b949e; line-height: 1.6;">Aggregate all your social links, crypto addresses, and agent manifests in one verifiable place.</p>
+                </div>
+            </div>
+
+            <h2 style="color: white; font-size: 2rem; margin-bottom: 20px; text-align: center;">How It Works</h2>
+            <div style="background: rgba(18, 24, 29, 0.4); border: 1px solid #1e262d; border-radius: 16px; padding: 40px; margin-bottom: 60px;">
+                <ol style="color: #8b949e; line-height: 1.8; font-size: 1.1rem; margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 16px;">
+                    <li><strong style="color: white;">Register a Domain:</strong> Get a `.agent` or other Handshake domain at <a href="https://headlessdomains.com" style="color: #19e27d;">HeadlessDomains.com</a>.</li>
+                    <li><strong style="color: white;">Set TXT Records:</strong> Add specific TXT records to your domain's DNS (e.g., `twitter=yourhandle`, `btc=youraddress`).</li>
+                    <li><strong style="color: white;">View Your Profile:</strong> Anyone can enter your domain here to instantly resolve and view your decentralized profile.</li>
+                </ol>
+            </div>
+
+            <!-- Secondary CTA & Search -->
+            <div class="card" style="padding: 40px; background: linear-gradient(135deg, rgba(25, 226, 125, 0.1), rgba(18, 24, 29, 0.8)); border: 1px solid rgba(25, 226, 125, 0.3); text-align: center;">
+                <h3 style="color: white; font-size: 1.5rem; margin-top: 0; margin-bottom: 16px;">Ready to claim your identity?</h3>
+                <p style="color: #8b949e; margin-bottom: 30px;">Search an existing profile below, or register your own decentralized domain today.</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 20px; max-width: 400px; margin: 0 auto;">
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="domainInputBottom" placeholder="e.g. my.chatbot" onkeydown="if(event.key === 'Enter') { document.getElementById('domainInput').value = this.value; goToDomain(); }" style="flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid #1e262d; background: #0b0f12; color: white; font-size: 1rem; outline: none; font-family: monospace;">
+                        <button onclick="document.getElementById('domainInput').value = document.getElementById('domainInputBottom').value; goToDomain()" class="btn-solid-green" style="padding: 12px 20px; font-size: 1rem; white-space: nowrap;">Load Profile</button>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 16px; color: #8b949e; font-size: 0.9rem;">
+                        <hr style="flex: 1; border: 0; border-top: 1px solid #1e262d;">
+                        <span>OR</span>
+                        <hr style="flex: 1; border: 0; border-top: 1px solid #1e262d;">
+                    </div>
+                    <a href="https://headlessdomains.com" target="_blank" class="btn-solid-green" style="width: 100%; padding: 16px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; display: block; background: transparent; border: 2px solid #19e27d; color: #19e27d;">Buy a Domain ↗</a>
+                </div>
             </div>
         </div>
 

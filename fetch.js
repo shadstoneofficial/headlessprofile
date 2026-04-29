@@ -36,6 +36,18 @@ async function fetchTXTRecords() {
     // Show loading state
     const loadingDiv = document.getElementById('loading');
     const contentDiv = document.getElementById('content');
+    const loadingDirectoryLink = document.getElementById('loading-directory-link');
+    const navDirectoryLink = document.getElementById('nav-directory-link');
+    
+    if (loadingDirectoryLink) {
+        loadingDirectoryLink.href = `https://directory.headlessprofile.com/entry/${domain}`;
+        loadingDirectoryLink.innerHTML = `While you wait, check out the cached profile ↗`;
+    }
+    if (navDirectoryLink) {
+        navDirectoryLink.href = `https://directory.headlessprofile.com/entry/${domain}`;
+        navDirectoryLink.innerText = 'Directory ↗';
+    }
+
     if (loadingDiv) loadingDiv.style.display = 'block';
 
     // Fetch and process the root domain's records using Punycode
