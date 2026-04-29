@@ -37,15 +37,14 @@ async function fetchTXTRecords() {
     const loadingDiv = document.getElementById('loading');
     const contentDiv = document.getElementById('content');
     const loadingDirectoryLink = document.getElementById('loading-directory-link');
-    const navDirectoryLink = document.getElementById('nav-directory-link');
+    const breadcrumbDirectoryLink = document.getElementById('breadcrumb-directory-link');
     
     if (loadingDirectoryLink) {
         loadingDirectoryLink.href = `https://directory.headlessprofile.com/entry/${domain}`;
         loadingDirectoryLink.innerHTML = `While you wait, check out the cached profile ↗`;
     }
-    if (navDirectoryLink) {
-        navDirectoryLink.href = `https://directory.headlessprofile.com/entry/${domain}`;
-        navDirectoryLink.innerText = 'Directory ↗';
+    if (breadcrumbDirectoryLink) {
+        breadcrumbDirectoryLink.href = `https://directory.headlessprofile.com/entry/${domain}`;
     }
 
     if (loadingDiv) loadingDiv.style.display = 'block';
