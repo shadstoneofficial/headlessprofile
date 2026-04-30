@@ -362,7 +362,7 @@ async function fetchAPIIntegrations(domain) {
                 arpBadgeDiv.style.display = 'block';
             }
 
-            if (primaryActionsDiv) {
+            if (primaryActionsDiv && !primaryActionsDiv.innerHTML.includes('Connect via ARP')) {
                 primaryActionsDiv.innerHTML = `
                     <a class="action-card" href="${chatUrl}" target="_blank" rel="noopener" style="background: linear-gradient(135deg, rgba(65, 105, 225, 0.2), rgba(65, 105, 225, 0.1)); border-color: rgba(65, 105, 225, 0.4);">
                         <div class="action-icon" style="background: rgba(65, 105, 225, 0.2);">
@@ -385,13 +385,28 @@ async function fetchAPIIntegrations(domain) {
                 mppBadgeDiv.style.display = 'block';
             }
 
-            // Expose Tempo Address in Currency grid
-            if (commerceData.tempo_address && currencyButtonsDiv) {
-                // Add Tempo/pathUSD payment button
-                currencyButtonsDiv.innerHTML += `
-                    <button class="social-btn" onclick="copyToClipboard('${commerceData.tempo_address}')" title="TEMPO / PATHUSD" style="border-color: #19e27d;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#19e27d" stroke-width="2" style="filter: none;"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>
-                    </button>`;
+            // Expose Tempo Address
+            if (commerceData.tempo_address) {
+                if (primaryActionsDiv && !primaryActionsDiv.innerHTML.includes('Pay via Tempo')) {
+                    primaryActionsDiv.innerHTML += `
+                        <a class="action-card" href="#" onclick="copyToClipboard('${commerceData.tempo_address}'); return false;" style="background: linear-gradient(135deg, rgba(25, 226, 125, 0.1), rgba(25, 226, 125, 0.05)); border-color: rgba(25, 226, 125, 0.3);">
+                            <div class="action-icon" style="background: rgba(25, 226, 125, 0.2);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#19e27d" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>
+                            </div>
+                            <div class="action-text">
+                                <div class="action-title" style="color: #19e27d;">Pay via Tempo</div>
+                                <div class="action-sub">Copy Tempo Address</div>
+                            </div>
+                            <div class="action-arrow" style="color: #19e27d;">📋</div>
+                        </a>`;
+                }
+
+                if (currencyButtonsDiv && !currencyButtonsDiv.innerHTML.includes('TEMPO / PATHUSD')) {
+                    currencyButtonsDiv.innerHTML += `
+                        <button class="social-btn" onclick="copyToClipboard('${commerceData.tempo_address}')" title="TEMPO / PATHUSD" style="border-color: #19e27d;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#19e27d" stroke-width="2" style="filter: none;"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>
+                        </button>`;
+                }
             }
         }
     } catch (error) {
@@ -498,7 +513,9 @@ function processTXTRecords(txtRecords, originalDomain) {
                 }
                 break;
             case 'arp':
-                if (primaryActionsDiv) {
+                const arpBadgeDiv = document.getElementById('arp-badge');
+                if (arpBadgeDiv) arpBadgeDiv.style.display = 'block';
+                if (primaryActionsDiv && !primaryActionsDiv.innerHTML.includes('Connect via ARP')) {
                     primaryActionsDiv.innerHTML = `
                         <a class="action-card" href="https://${value}" target="_blank" rel="noopener" style="background: linear-gradient(135deg, rgba(65, 105, 225, 0.2), rgba(65, 105, 225, 0.1)); border-color: rgba(65, 105, 225, 0.4);">
                             <div class="action-icon" style="background: rgba(65, 105, 225, 0.2);">
@@ -510,6 +527,33 @@ function processTXTRecords(txtRecords, originalDomain) {
                             </div>
                             <div class="action-arrow" style="color: #4169e1;">→</div>
                         </a>` + primaryActionsDiv.innerHTML;
+                }
+                break;
+            case 'mpp_enabled':
+                if (value.toLowerCase() === 'true') {
+                    const mppBadgeDiv = document.getElementById('mpp-badge');
+                    if (mppBadgeDiv) mppBadgeDiv.style.display = 'block';
+                }
+                break;
+            case 'tempo_address':
+                if (primaryActionsDiv && !primaryActionsDiv.innerHTML.includes('Pay via Tempo')) {
+                    primaryActionsDiv.innerHTML += `
+                        <a class="action-card" href="#" onclick="copyToClipboard('${value}'); return false;" style="background: linear-gradient(135deg, rgba(25, 226, 125, 0.1), rgba(25, 226, 125, 0.05)); border-color: rgba(25, 226, 125, 0.3);">
+                            <div class="action-icon" style="background: rgba(25, 226, 125, 0.2);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#19e27d" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>
+                            </div>
+                            <div class="action-text">
+                                <div class="action-title" style="color: #19e27d;">Pay via Tempo</div>
+                                <div class="action-sub">Copy Tempo Address</div>
+                            </div>
+                            <div class="action-arrow" style="color: #19e27d;">📋</div>
+                        </a>`;
+                }
+                if (currencyButtonsDiv && !currencyButtonsDiv.innerHTML.includes('TEMPO / PATHUSD')) {
+                    currencyButtonsDiv.innerHTML += `
+                        <button class="social-btn" onclick="copyToClipboard('${value}')" title="TEMPO / PATHUSD" style="border-color: #19e27d;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#19e27d" stroke-width="2" style="filter: none;"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>
+                        </button>`;
                 }
                 break;
             case 'agent-manifest':
