@@ -356,7 +356,7 @@ async function fetchAPIIntegrations(domain) {
         
         // 1. ARP Chat Integration
         if (data.status === "success" && data.integrations && data.integrations.arp_chat && data.integrations.arp_chat.enabled) {
-            const chatUrl = data.integrations.arp_chat.url || `https://cloud.arp.run/${domain}`;
+            const chatUrl = data.integrations.arp_chat.url || `https://cloud.arp.run/pair?peer=did:web:${domain}`;
             
             if (arpBadgeDiv) {
                 arpBadgeDiv.style.display = 'block';
@@ -364,13 +364,13 @@ async function fetchAPIIntegrations(domain) {
 
             if (primaryActionsDiv) {
                 primaryActionsDiv.innerHTML = `
-                    <a class="action-card" href="${chatUrl}" target="_blank" style="background: linear-gradient(135deg, rgba(65, 105, 225, 0.2), rgba(65, 105, 225, 0.1)); border-color: rgba(65, 105, 225, 0.4);">
+                    <a class="action-card" href="${chatUrl}" target="_blank" rel="noopener" style="background: linear-gradient(135deg, rgba(65, 105, 225, 0.2), rgba(65, 105, 225, 0.1)); border-color: rgba(65, 105, 225, 0.4);">
                         <div class="action-icon" style="background: rgba(65, 105, 225, 0.2);">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4169e1" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                         </div>
                         <div class="action-text">
-                            <div class="action-title" style="color: #fff;">Chat Now</div>
-                            <div class="action-sub">ARP Secure Chat</div>
+                            <div class="action-title" style="color: #fff;">Connect via ARP</div>
+                            <div class="action-sub">Request connection</div>
                         </div>
                         <div class="action-arrow" style="color: #4169e1;">→</div>
                     </a>` + primaryActionsDiv.innerHTML;
@@ -500,13 +500,13 @@ function processTXTRecords(txtRecords, originalDomain) {
             case 'arp':
                 if (primaryActionsDiv) {
                     primaryActionsDiv.innerHTML = `
-                        <a class="action-card" href="https://${value}" target="_blank" style="background: linear-gradient(135deg, rgba(65, 105, 225, 0.2), rgba(65, 105, 225, 0.1)); border-color: rgba(65, 105, 225, 0.4);">
+                        <a class="action-card" href="https://${value}" target="_blank" rel="noopener" style="background: linear-gradient(135deg, rgba(65, 105, 225, 0.2), rgba(65, 105, 225, 0.1)); border-color: rgba(65, 105, 225, 0.4);">
                             <div class="action-icon" style="background: rgba(65, 105, 225, 0.2);">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4169e1" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                             </div>
                             <div class="action-text">
-                                <div class="action-title" style="color: #fff;">Chat Now</div>
-                                <div class="action-sub">ARP Secure Chat</div>
+                                <div class="action-title" style="color: #fff;">Connect via ARP</div>
+                                <div class="action-sub">Request connection</div>
                             </div>
                             <div class="action-arrow" style="color: #4169e1;">→</div>
                         </a>` + primaryActionsDiv.innerHTML;
