@@ -38,6 +38,7 @@ async function fetchTXTRecords() {
     const contentDiv = document.getElementById('content');
     const loadingDirectoryLink = document.getElementById('loading-directory-link');
     const breadcrumbDirectoryLink = document.getElementById('breadcrumb-directory-link');
+    const disputeLink = document.getElementById('dispute-link');
     
     if (loadingDirectoryLink) {
         loadingDirectoryLink.href = `https://directory.headlessprofile.com/entry/${domain}`;
@@ -45,6 +46,9 @@ async function fetchTXTRecords() {
     }
     if (breadcrumbDirectoryLink) {
         breadcrumbDirectoryLink.href = `https://directory.headlessprofile.com/entry/${domain}`;
+    }
+    if (disputeLink) {
+        disputeLink.href = `https://headlesscourt.com/dispute?domain=${domain}`;
     }
 
     if (loadingDiv) loadingDiv.style.display = 'block';
