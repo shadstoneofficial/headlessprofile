@@ -334,6 +334,7 @@ async function fetchAPIIntegrations(domain) {
     const arpBadgeDiv = document.getElementById('arp-badge');
     const mppBadgeDiv = document.getElementById('mpp-badge');
     const flagBadgeDiv = document.getElementById('flag-badge');
+    const storefrontBadgeDiv = document.getElementById('storefront-badge');
     const primaryActionsDiv = document.getElementById('primary-actions');
     const currencyButtonsDiv = document.getElementById('currency-buttons');
 
@@ -411,6 +412,28 @@ async function fetchAPIIntegrations(domain) {
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#19e27d" stroke-width="2" style="filter: none;"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>
                         </button>`;
                 }
+            }
+        }
+
+        // 3. BMOS Agentic Commerce Integration (Storefront)
+        const commerceCatalog = (data.profile && data.profile.commerce_catalog) || (data.agent && data.agent.commerce && data.agent.commerce.catalog);
+        if (commerceCatalog && commerceCatalog.provider === "bmos" && commerceCatalog.status === "active") {
+            if (storefrontBadgeDiv) {
+                storefrontBadgeDiv.style.display = 'block';
+            }
+            if (commerceCatalog.feed_url && primaryActionsDiv && !primaryActionsDiv.innerHTML.includes('Visit Storefront')) {
+                const merchantName = commerceCatalog.merchant_name || 'Agentic Storefront';
+                primaryActionsDiv.innerHTML += `
+                    <a class="action-card" href="${commerceCatalog.feed_url}" target="_blank" rel="noopener" style="background: linear-gradient(135deg, rgba(255, 153, 0, 0.2), rgba(255, 153, 0, 0.1)); border-color: rgba(255, 153, 0, 0.4);">
+                        <div class="action-icon" style="background: rgba(255, 153, 0, 0.2);">
+                            <span style="font-size: 1.2rem;">🛍️</span>
+                        </div>
+                        <div class="action-text">
+                            <div class="action-title" style="color: #ff9900;">Visit Storefront</div>
+                            <div class="action-sub">${merchantName} (BMOS)</div>
+                        </div>
+                        <div class="action-arrow" style="color: #ff9900;">→</div>
+                    </a>`;
             }
         }
     } catch (error) {
@@ -531,6 +554,23 @@ function processTXTRecords(txtRecords, originalDomain) {
                             </div>
                             <div class="action-arrow" style="color: #4169e1;">→</div>
                         </a>` + primaryActionsDiv.innerHTML;
+                }
+                break;
+            case 'bmos':
+                const storefrontBadgeDiv = document.getElementById('storefront-badge');
+                if (storefrontBadgeDiv) storefrontBadgeDiv.style.display = 'block';
+                if (primaryActionsDiv && !primaryActionsDiv.innerHTML.includes('Visit Storefront')) {
+                    primaryActionsDiv.innerHTML += `
+                        <a class="action-card" href="${value}" target="_blank" rel="noopener" style="background: linear-gradient(135deg, rgba(255, 153, 0, 0.2), rgba(255, 153, 0, 0.1)); border-color: rgba(255, 153, 0, 0.4);">
+                            <div class="action-icon" style="background: rgba(255, 153, 0, 0.2);">
+                                <span style="font-size: 1.2rem;">🛍️</span>
+                            </div>
+                            <div class="action-text">
+                                <div class="action-title" style="color: #ff9900;">Visit Storefront</div>
+                                <div class="action-sub">Agentic Commerce via BMOS</div>
+                            </div>
+                            <div class="action-arrow" style="color: #ff9900;">→</div>
+                        </a>`;
                 }
                 break;
             case 'mpp_enabled':
