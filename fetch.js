@@ -147,7 +147,9 @@ async function setDynamicCSS(txtRecords) {
 async function fetchAndProcessTXTRecords(domain) {
     const urls = [
         `https://resolve.shakestation.io/dns-query?name=${domain}&type=TXT`,
-        `https://hnsdoh.com/dns-query?name=${domain}&type=TXT`
+        `https://hnsdoh.com/dns-query?name=${domain}&type=TXT`,
+        `https://hdns.io/dns-query?name=${domain}&type=TXT`,
+        `https://doh.hns.is/dns-query?name=${domain}&type=TXT`
     ];
 
     let data = null;
