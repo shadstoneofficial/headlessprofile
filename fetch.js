@@ -826,3 +826,120 @@ function goToDomain() {
         window.location.href = `https://headlessprofile.com/?domain=${encodeURIComponent(input)}`;
     }
 }
+
+// IPFS Modal Functions
+function openIpfsModal() {
+    const modal = document.getElementById('ipfs-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeIpfsModal() {
+    const modal = document.getElementById('ipfs-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+// Client-Side Export Logic
+async function exportToZip() {
+    const btn = document.getElementById('btn-export-zip');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<div class="spinner" style="width: 18px; height: 18px; border-width: 2px;"></div> Generating...`;
+    btn.disabled = true;
+    
+    try {
+        if (!window.JSZip) {
+            throw new Error("JSZip library not loaded");
+        }
+        
+        const zip = new JSZip();
+        
+        // 1. Get the current DOM state of the content container
+        const contentNode = document.getElementById('content');
+        
+        // Create a clone so we can modify it without affecting the live page
+        const clone = contentNode.cloneNode(true);
+        
+        // Remove interactive elements that don't make sense in a static export
+        const elementsToRemove = [
+            clone.querySelector('.manage-card'), // Directory Listing Card
+            clone.querySelectorAll('.manage-card')[1], // IPFS Export Card
+            clone.querySelector('#ipfs-modal'), // Modal
+            clone.querySelector('button[onclick="window.location.reload()"]') // Force Refresh Button
+        ];
+        
+        elementsToRemove.forEach(el => {
+            if (el) el.remove();
+        });
+        
+        // Ensure content is visible in the static HTML
+        clone.style.display = 'block';
+
+        // Get domain name for the title and filename
+        const domainName = document.title || 'agent-profile';
+
+        // 2. Fetch the current CSS file
+        const cssResponse = await fetch('style.css');
+        const cssText = await cssResponse.text();
+        zip.file('style.css', cssText);
+        
+        // 3. Create the static index.html
+        const staticHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${domainName} - Agentic Identity</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { 
+            background-color: ${document.body.style.backgroundColor || '#0b0f12'};
+            background-image: ${document.body.style.backgroundImage || 'none'};
+        }
+    </style>
+</head>
+<body>
+    <header class="top-nav">
+        <a href="https://headlessprofile.com" style="text-decoration: none;" class="logo">
+            <div class="logo-icon">⬡</div>
+            <div class="logo-text">
+                <div class="logo-title" style="color: white;">HEADLESS</div>
+                <div class="logo-sub">PROFILE</div>
+            </div>
+        </a>
+        <div class="nav-links">
+            <a href="https://directory.headlessprofile.com">Browse Agents</a>
+            <a href="https://headlessprofile.com">Search</a>
+        </div>
+    </header>
+    <div class="container">
+        ${clone.innerHTML}
+    </div>
+</body>
+</html>`;
+        
+        zip.file('index.html', staticHtml);
+        
+        // 4. Generate the ZIP file
+        const content = await zip.generateAsync({type: 'blob'});
+        
+        // 5. Trigger the download
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(content);
+        a.download = `${domainName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-profile.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+        
+        btn.innerHTML = `<span style="color: #19e27d;">✔</span> Download Complete!`;
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }, 3000);
+        
+    } catch (err) {
+        console.error("Export failed:", err);
+        alert("Failed to generate export. Check console for details.");
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}

@@ -111,5 +111,30 @@ The primary goal of this demo is to establish a universal standard for TXT recor
 
 No license, no limits. Free to use, abuse and improve this code however you see fit.
 
+---
+
+## Export to IPFS (True Decentralization)
+
+Headless Profile acts as a dynamic gateway to render Handshake TXT records, but you can also export your profile to host it natively on the InterPlanetary File System (IPFS) and link it directly to your `.agent` or Handshake domain. 
+
+### How to Export & Host Natively
+
+1. **Download the Source Code:** 
+   - Look up your domain on [headlessprofile.com](https://headlessprofile.com).
+   - Click the **Export to IPFS ↗** button at the bottom of your profile.
+   - Select **Download Source (.zip)**. This bundles your rendered `index.html` and `style.css` into a static website.
+2. **Upload to IPFS:**
+   - Create an account on a pinning service like [Fleek](https://fleek.co/) or [Pinata](https://pinata.cloud/).
+   - Upload the extracted contents of the `.zip` file (ensure `index.html` is at the root).
+   - Copy the resulting **IPFS CID** (Content Identifier).
+3. **Link to your Domain:**
+   - Go to your domain manager (e.g., [HeadlessDomains.com](https://headlessdomains.com) or Namebase).
+   - Add a new TXT record to your domain:
+     - **Name:** `_dnslink`
+     - **Value:** `/ipfs/<YOUR_CID>`
+   - *Note: If your registrar supports direct IPFS routing, you may also be able to just add an `ipfs:<YOUR_CID>` TXT record.*
+
+Once the DNS propagates, resolving your Handshake domain natively will load your decentralized profile directly from IPFS!
+
 
 
