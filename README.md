@@ -122,17 +122,16 @@ Headless Profile acts as a dynamic gateway to render Handshake TXT records, but 
 1. **Download the Source Code:** 
    - Look up your domain on [headlessprofile.com](https://headlessprofile.com).
    - Click the **Export to IPFS ↗** button at the bottom of your profile.
-   - Select **Download Source (.zip)**. This bundles your rendered `index.html` and `style.css` into a static website.
+   - Select **Download Source (.html)**. This generates a single, standalone HTML file containing your entire profile.
 2. **Upload to IPFS:**
    - Create an account on a pinning service like [Fleek](https://fleek.co/) or [Pinata](https://pinata.cloud/).
-   - Upload the extracted contents of the `.zip` file (ensure `index.html` is at the root).
+   - Upload the downloaded HTML file.
    - Copy the resulting **IPFS CID** (Content Identifier).
 3. **Link to your Domain:**
    - Go to your domain manager (e.g., [HeadlessDomains.com](https://headlessdomains.com) or Namebase).
    - Add a new TXT record to your domain:
-     - **Name:** `_dnslink`
-     - **Value:** `/ipfs/<YOUR_CID>`
-   - *Note: If your registrar supports direct IPFS routing, you may also be able to just add an `ipfs:<YOUR_CID>` TXT record.*
+     - **Name:** `@` (or leave blank)
+     - **Value:** `ipfs:<YOUR_CID>`
 
 Once the DNS propagates, resolving your Handshake domain natively will load your decentralized profile directly from IPFS!
 

@@ -55,7 +55,7 @@
                     Download Your Source Code
                 </h3>
                 <p style="color: #8b949e; line-height: 1.6;">
-                    Go to the homepage and search for your `.agent` or Handshake domain. Scroll to the bottom of your rendered profile and click the <strong>Export to IPFS ↗</strong> button. Choose <strong>Download Source (.zip)</strong> and extract the files to your computer.
+                    Go to the homepage and search for your `.agent` or Handshake domain. Scroll to the bottom of your rendered profile and click the <strong>Export to IPFS ↗</strong> button. Choose <strong>Download Source (.html)</strong> and save the single HTML file to your computer.
                 </p>
             </div>
 
@@ -70,9 +70,9 @@
                 </p>
                 <ol style="color: #8b949e; line-height: 1.6; padding-left: 20px;">
                     <li>Create an account on a pinning service like <a href="https://fleek.co" target="_blank" style="color: #4169e1;">Fleek</a> or <a href="https://pinata.cloud" target="_blank" style="color: #4169e1;">Pinata</a>.</li>
-                    <li>Upload your extracted files (ensure <code>index.html</code> is at the root).</li>
+                    <li>Upload your downloaded HTML file.</li>
                     <li>Copy the resulting <strong>IPFS CID</strong> (Content Identifier).</li>
-                    <li>Go to your domain manager (e.g., <a href="https://headlessdomains.com" target="_blank" style="color: #4169e1;">HeadlessDomains</a>) and add a TXT record: <code style="background: #0b0f12; padding: 2px 6px; border-radius: 4px; color: #fff;">_dnslink=/ipfs/&lt;YOUR_CID&gt;</code></li>
+                    <li>Go to your domain manager (e.g., <a href="https://headlessdomains.com" target="_blank" style="color: #4169e1;">HeadlessDomains</a>) and add a TXT record: <code style="background: #0b0f12; padding: 2px 6px; border-radius: 4px; color: #fff;">ipfs:&lt;YOUR_CID&gt;</code></li>
                 </ol>
             </div>
 
@@ -87,7 +87,7 @@
                 </p>
                 <ol style="color: #8b949e; line-height: 1.6; padding-left: 20px;">
                     <li>Log into your hosting provider's File Manager or FTP client (e.g., FileZilla).</li>
-                    <li>Upload the extracted <code>index.html</code> and <code>style.css</code> files to your server's <code>public_html</code> or root directory.</li>
+                    <li>Upload the downloaded <code>.html</code> file and rename it to <code>index.html</code> in your server's <code>public_html</code> or root directory.</li>
                     <li>Update your domain's A-Records to point to your traditional web server's IP address.</li>
                 </ol>
             </div>

@@ -846,12 +846,6 @@ async function exportToZip() {
     btn.disabled = true;
     
     try {
-        if (!window.JSZip) {
-            throw new Error("JSZip library not loaded");
-        }
-        
-        const zip = new JSZip();
-        
         // 1. Get the current DOM state of the content container
         const contentNode = document.getElementById('content');
         
@@ -879,17 +873,17 @@ async function exportToZip() {
         // 2. Fetch the current CSS file
         const cssResponse = await fetch('style.css');
         const cssText = await cssResponse.text();
-        zip.file('style.css', cssText);
         
-        // 3. Create the static index.html
+        // 3. Create the static index.html with inlined CSS
         const staticHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${domainName} - Agentic Identity</title>
-    <link rel="stylesheet" href="style.css">
     <style>
+        ${cssText}
+        
         body { 
             background-color: ${document.body.style.backgroundColor || '#0b0f12'};
             background-image: ${document.body.style.backgroundImage || 'none'};
@@ -916,15 +910,11 @@ async function exportToZip() {
 </body>
 </html>`;
         
-        zip.file('index.html', staticHtml);
-        
-        // 4. Generate the ZIP file
-        const content = await zip.generateAsync({type: 'blob'});
-        
-        // 5. Trigger the download
+        // 4. Create the Blob and trigger download
+        const blob = new Blob([staticHtml], { type: 'text/html' });
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(content);
-        a.download = `${domainName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-profile.zip`;
+        a.href = URL.createObjectURL(blob);
+        a.download = `${domainName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-profile.html`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
