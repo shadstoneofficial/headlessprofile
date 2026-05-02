@@ -874,6 +874,29 @@ function goToDomain() {
 function openIpfsModal() {
     const modal = document.getElementById('ipfs-modal');
     if (modal) modal.style.display = 'flex';
+
+    // Enforce Headless Domains TLD Whitelist for Option B
+    const domainName = document.title || '';
+    const btnSyncIpfs = document.getElementById('btn-sync-ipfs');
+    const syncIpfsWarning = document.getElementById('sync-ipfs-warning');
+    
+    // Check if the domain ends with a supported TLD
+    const supportedTlds = ['.agent', '.chatbot'];
+    const isSupported = supportedTlds.some(tld => domainName.toLowerCase().endsWith(tld));
+
+    if (btnSyncIpfs && syncIpfsWarning) {
+        if (!isSupported) {
+            btnSyncIpfs.disabled = true;
+            btnSyncIpfs.style.opacity = '0.5';
+            btnSyncIpfs.style.cursor = 'not-allowed';
+            syncIpfsWarning.style.display = 'block';
+        } else {
+            btnSyncIpfs.disabled = false;
+            btnSyncIpfs.style.opacity = '1';
+            btnSyncIpfs.style.cursor = 'pointer';
+            syncIpfsWarning.style.display = 'none';
+        }
+    }
 }
 
 function closeIpfsModal() {

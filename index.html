@@ -227,10 +227,13 @@
                 <div style="background: rgba(65, 105, 225, 0.1); border: 1px solid rgba(65, 105, 225, 0.3); border-radius: 8px; padding: 16px; margin-bottom: 24px;">
                     <h3 style="color: #4169e1; margin: 0 0 12px 0; font-size: 1.1rem;">Option B: 1-Click Sync (via Headless Domains)</h3>
                     <p style="color: #ccc; font-size: 0.95rem; margin-bottom: 16px;">Automatically pin your profile to IPFS and pre-fill your DNS records in one click.</p>
-                    <button onclick="syncToIpfs()" id="btn-sync-ipfs" class="btn-solid-green" style="width: 100%; background: transparent; border: 1px solid #4169e1; color: #4169e1; display: flex; justify-content: center; align-items: center; gap: 8px;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l-5.42 5.42"/></svg>
-                        Sync via Headless Domains
-                    </button>
+                    <div id="sync-ipfs-container">
+                        <button onclick="syncToIpfs()" id="btn-sync-ipfs" class="btn-solid-green" style="width: 100%; background: transparent; border: 1px solid #4169e1; color: #4169e1; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l-5.42 5.42"/></svg>
+                            Sync via Headless Domains
+                        </button>
+                        <p id="sync-ipfs-warning" style="color: #ff4444; font-size: 0.85rem; margin: 8px 0 0 0; display: none; text-align: center;">1-Click Sync is currently an exclusive benefit for domains registered on HeadlessDomains.com (e.g., .agent, .chatbot).</p>
+                    </div>
                 </div>
 
                 <h3 style="color: white; margin-bottom: 12px;">How to link it to your domain:</h3>
