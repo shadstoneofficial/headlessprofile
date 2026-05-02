@@ -701,7 +701,7 @@ function processTXTRecords(txtRecords, originalDomain) {
                 linksDiv.innerHTML += `<a class="social-btn" href="http://${value}.limo" target="_blank" title="ENS"><img src="img/ens.png" alt="ENS"></a>`;
                 break;  
             case 'ipfs':
-                linksDiv.innerHTML += `<a class="social-btn" href="http://${value}.ipfs.dweb.link" target="_blank" title="IPFS"><img src="img/ipfs.png" alt="IPFS"></a>`;
+                linksDiv.innerHTML += `<a class="social-btn" href="https://ipfs.io/ipfs/${value}" target="_blank" title="IPFS"><img src="img/ipfs.png" alt="IPFS"></a>`;
                 break;
             case 'nostr':
                 linksDiv.innerHTML += `<a class="social-btn" href="nostr:${value}" target="_blank" title="NOSTR"><img src="img/nostr.png" alt="Nostr"></a>`;
