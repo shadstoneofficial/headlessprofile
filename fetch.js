@@ -91,6 +91,25 @@ async function fetchTXTRecords() {
                 fetchAndProcessTXTRecords(punyExternal).then(records => processTXTRecords(records, domain));
             }
         });
+
+        // Auto-pin flow for seamless Headless Domains integration
+        if (urlParams.get('auto_pin') === 'true') {
+            // Show a simple loading indicator so the user knows what's happening
+            const autoPinOverlay = document.createElement('div');
+            autoPinOverlay.id = 'auto-pin-overlay';
+            autoPinOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(11,15,18,0.95);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;font-family:sans-serif;';
+            autoPinOverlay.innerHTML = `
+                <div class="spinner" style="width: 50px; height: 50px; border-width: 4px; border-top-color: #4169e1; margin-bottom: 24px;"></div>
+                <h2 style="color: #4169e1; margin-bottom: 8px;">Auto-Pinning to IPFS...</h2>
+                <p style="color:#8b949e;">Please wait while we secure your profile on the decentralized web.</p>
+            `;
+            document.body.appendChild(autoPinOverlay);
+
+            // Give it a tiny delay to ensure DOM is fully painted and external records fetch
+            setTimeout(() => {
+                syncToIpfs(true);
+            }, 800);
+        }
     }
 }
 
@@ -1013,11 +1032,14 @@ async function exportToZip() {
 }
 
 // 1-Click Sync to IPFS via Headless Domains API
-async function syncToIpfs() {
+async function syncToIpfs(isAutoPin = false) {
     const btn = document.getElementById('btn-sync-ipfs');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = `<div class="spinner" style="width: 18px; height: 18px; border-width: 2px;"></div> Pinning to IPFS...`;
-    btn.disabled = true;
+    let originalText = '';
+    if (btn && !isAutoPin) {
+        originalText = btn.innerHTML;
+        btn.innerHTML = `<div class="spinner" style="width: 18px; height: 18px; border-width: 2px;"></div> Pinning to IPFS...`;
+        btn.disabled = true;
+    }
     
     try {
         // 1. Get the current DOM state of the content container
@@ -1107,15 +1129,23 @@ async function syncToIpfs() {
         const data = await response.json();
 
         if (response.ok && data.status === 'success' && data.cid) {
-            btn.innerHTML = `<span style="color: #4169e1;">✔</span> Synced Successfully!`;
+            if (btn && !isAutoPin) {
+                btn.innerHTML = `<span style="color: #4169e1;">✔</span> Synced Successfully!`;
+            }
             
             // Redirect to Headless Domains with the CID to pre-fill DNS
             setTimeout(() => {
                 const url = `https://headlessdomains.com/dashboard/domain/by-name/${domainName}?ipfs_sync=${data.cid}`;
-                window.open(url, '_blank'); // Open in new tab
                 
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                if (isAutoPin) {
+                    window.location.href = url; // Same-tab redirect for auto flow
+                } else {
+                    window.open(url, '_blank'); // Open in new tab
+                    if (btn) {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                }
             }, 1000);
         } else {
             throw new Error(data.message || 'Unknown error pinning to IPFS');
@@ -1124,7 +1154,13 @@ async function syncToIpfs() {
     } catch (err) {
         console.error("Sync failed:", err);
         alert(`Failed to sync to IPFS: ${err.message}`);
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+        if (btn && !isAutoPin) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+        if (isAutoPin) {
+            const overlay = document.getElementById('auto-pin-overlay');
+            if (overlay) overlay.remove();
+        }
     }
 }
