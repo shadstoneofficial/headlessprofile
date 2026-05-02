@@ -910,6 +910,18 @@ async function exportToZip() {
         // Ensure content is visible in the static HTML
         clone.style.display = 'block';
 
+        // Fix all relative image paths by converting them to absolute paths pointing to headlessprofile.com
+        const images = clone.querySelectorAll('img');
+        images.forEach(img => {
+            const src = img.getAttribute('src');
+            // If the src exists and is not already an absolute URL (http, https, data:)
+            if (src && !src.match(/^https?:\/\//i) && !src.startsWith('data:')) {
+                // Remove leading slash if present to avoid double slashes
+                const cleanSrc = src.startsWith('/') ? src.substring(1) : src;
+                img.setAttribute('src', `https://headlessprofile.com/${cleanSrc}`);
+            }
+        });
+
         // Get domain name for the title and filename
         const domainName = document.title || 'agent-profile';
 
@@ -1002,6 +1014,18 @@ async function syncToIpfs() {
         });
         
         clone.style.display = 'block';
+
+        // Fix all relative image paths by converting them to absolute paths pointing to headlessprofile.com
+        const images = clone.querySelectorAll('img');
+        images.forEach(img => {
+            const src = img.getAttribute('src');
+            // If the src exists and is not already an absolute URL (http, https, data:)
+            if (src && !src.match(/^https?:\/\//i) && !src.startsWith('data:')) {
+                // Remove leading slash if present to avoid double slashes
+                const cleanSrc = src.startsWith('/') ? src.substring(1) : src;
+                img.setAttribute('src', `https://headlessprofile.com/${cleanSrc}`);
+            }
+        });
 
         const domainName = document.title || 'agent-profile';
 
