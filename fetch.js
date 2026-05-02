@@ -976,3 +976,108 @@ async function exportToZip() {
         btn.disabled = false;
     }
 }
+
+// 1-Click Sync to IPFS via Headless Domains API
+async function syncToIpfs() {
+    const btn = document.getElementById('btn-sync-ipfs');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<div class="spinner" style="width: 18px; height: 18px; border-width: 2px;"></div> Pinning to IPFS...`;
+    btn.disabled = true;
+    
+    try {
+        // 1. Get the current DOM state of the content container
+        const contentNode = document.getElementById('content');
+        const clone = contentNode.cloneNode(true);
+        
+        // Remove interactive elements
+        const elementsToRemove = [
+            clone.querySelector('.manage-card'),
+            clone.querySelectorAll('.manage-card')[1],
+            clone.querySelector('#ipfs-modal'),
+            clone.querySelector('button[onclick="window.location.reload()"]')
+        ];
+        
+        elementsToRemove.forEach(el => {
+            if (el) el.remove();
+        });
+        
+        clone.style.display = 'block';
+
+        const domainName = document.title || 'agent-profile';
+
+        // 2. Fetch the current CSS file
+        const cssResponse = await fetch('style.css');
+        const cssText = await cssResponse.text();
+        
+        // 3. Create the static HTML string
+        const staticHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${domainName} - Agentic Identity</title>
+    <style>
+        ${cssText}
+        
+        body { 
+            background-color: ${document.body.style.backgroundColor || '#0b0f12'};
+            background-image: ${document.body.style.backgroundImage || 'none'};
+        }
+    </style>
+</head>
+<body>
+    <header class="top-nav">
+        <a href="https://headlessprofile.com" style="text-decoration: none;" class="logo">
+            <div class="logo-icon">⬡</div>
+            <div class="logo-text">
+                <div class="logo-title" style="color: white;">HEADLESS</div>
+                <div class="logo-sub">PROFILE</div>
+            </div>
+        </a>
+        <div class="nav-links">
+            <a href="https://directory.headlessprofile.com">Browse Agents</a>
+            <a href="https://headlessprofile.com">Search</a>
+        </div>
+    </header>
+    <div class="container">
+        ${clone.innerHTML}
+    </div>
+</body>
+</html>`;
+
+        // 4. Send to Headless Domains API to pin
+        const response = await fetch('https://headlessdomains.com/api/v1/ipfs/pin-profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                domain_name: domainName,
+                html: staticHtml
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.status === 'success' && data.cid) {
+            btn.innerHTML = `<span style="color: #4169e1;">✔</span> Synced Successfully!`;
+            
+            // Redirect to Headless Domains with the CID to pre-fill DNS
+            setTimeout(() => {
+                const url = `https://headlessdomains.com/dashboard/domain/by-name/${domainName}?ipfs_sync=${data.cid}`;
+                window.open(url, '_blank'); // Open in new tab
+                
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 1000);
+        } else {
+            throw new Error(data.message || 'Unknown error pinning to IPFS');
+        }
+        
+    } catch (err) {
+        console.error("Sync failed:", err);
+        alert(`Failed to sync to IPFS: ${err.message}`);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
