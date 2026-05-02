@@ -1,0 +1,2 @@
+# Redirect /profile/domain to /?domain=domain
+/profile/*  /?domain=:splat  301
