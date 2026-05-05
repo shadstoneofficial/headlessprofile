@@ -117,7 +117,22 @@ No license, no limits. Free to use, abuse and improve this code however you see 
 
 Headless Profile acts as a dynamic gateway to render Handshake TXT records, but you can also export your profile to host it natively on the InterPlanetary File System (IPFS) and link it directly to your `.agent` or Handshake domain. 
 
-### How to Export & Host Natively
+### Option A: 1-Click Sync (Recommended for Headless Domains)
+
+If your domain is registered on [HeadlessDomains.com](https://headlessdomains.com) (e.g., `.agent`, `.chatbot`), you can automate the entire IPFS pinning and DNS configuration process:
+
+1. **Start the Sync:**
+   - Look up your domain on [headlessprofile.com](https://headlessprofile.com).
+   - Click the **Export to IPFS ↗** button at the bottom of your profile.
+   - Click **Sync via Headless Domains**.
+2. **Auto-Pinning & Pre-filling:**
+   - The application will automatically take a snapshot of your profile, convert images to absolute paths, and securely send it to the Headless Domains API to pin via Pinata.
+   - You will be instantly redirected back to your Headless Domains dashboard where the new `ipfs:<YOUR_CID>` TXT record will be perfectly pre-filled and ready for you to confirm.
+   *(Note: This flow can also be triggered directly from the Headless Domains dashboard via the `&auto_pin=true` URL parameter!)*
+
+### Option B: Client-Side Export (Manual)
+
+For domains registered elsewhere, or if you prefer to pin your files manually:
 
 1. **Download the Source Code:** 
    - Look up your domain on [headlessprofile.com](https://headlessprofile.com).
@@ -128,7 +143,7 @@ Headless Profile acts as a dynamic gateway to render Handshake TXT records, but 
    - Upload the downloaded HTML file.
    - Copy the resulting **IPFS CID** (Content Identifier).
 3. **Link to your Domain:**
-   - Go to your domain manager (e.g., [HeadlessDomains.com](https://headlessdomains.com) or Namebase).
+   - Go to your domain manager (e.g., Namebase or Shakestation).
    - Add a new TXT record to your domain:
      - **Name:** `@` (or leave blank)
      - **Value:** `ipfs:<YOUR_CID>`
