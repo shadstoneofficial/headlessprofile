@@ -70,6 +70,8 @@ async function fetchTXTRecords() {
             `;
         }
 
+        trackHeadlessAnalytics(punycodeDomain, 'profile_viewed', 'headlessprofile');
+
         // Process and display the fetched records using original domain for rendering
         processTXTRecords(txtRecords, domain);
 
@@ -111,6 +113,27 @@ async function fetchTXTRecords() {
             }, 800);
         }
     }
+}
+
+function trackHeadlessAnalytics(domain, eventType, surface, extra = {}) {
+    if (!domain || domain === 'headlessprofile.com' || domain.includes('netlify')) return;
+
+    const params = new URLSearchParams({
+        domain,
+        eventType,
+        surface,
+        path: window.location.pathname + window.location.search,
+        sourceUrl: window.location.href
+    });
+    Object.entries(extra).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+            params.set(key, value);
+        }
+    });
+
+    const pixel = new Image(1, 1);
+    pixel.referrerPolicy = 'strict-origin-when-cross-origin';
+    pixel.src = `https://analytics.headlessdomains.com/api/v1/pixel.gif?${params.toString()}`;
 }
 
 // Function to set dynamic favicon based on TXT record with "fav:" prefix
