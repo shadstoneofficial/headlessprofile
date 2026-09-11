@@ -53,10 +53,19 @@ async function fetchTXTRecords() {
 
     if (loadingDiv) loadingDiv.style.display = 'block';
 
-    // Fetch and process the root domain's records using Punycode
-    const txtRecords = await fetchAndProcessTXTRecords(punycodeDomain);
+    // Start canonical actions independently. TXT/profile failure or latency must
+    // never prevent a valid resolver response from rendering.
+    const loads = window.HeadlessActionView.startIndependentLoads(
+        () => fetchAndProcessTXTRecords(punycodeDomain),
+        () => fetchDomainActions(punycodeDomain)
+    );
+    const txtRecords = await loads.profile;
 
     if (txtRecords) {
+        if (contentDiv) {
+            contentDiv.dataset.profileReady = 'true';
+            contentDiv.classList.remove('actions-only');
+        }
         // Apply dynamic favicon and CSS
         await setDynamicFavicon(txtRecords);
         await setDynamicCSS(txtRecords);
@@ -77,10 +86,6 @@ async function fetchTXTRecords() {
 
         // Fetch external API Integrations (ARP, MPP)
         await fetchAPIIntegrations(domain);
-
-        // Render validated provider actions from the canonical resolver. This is
-        // intentionally separate from TXT-derived website and profile links.
-        await fetchDomainActions(punycodeDomain);
 
         // Hide loading state, show content
         if (loadingDiv) loadingDiv.style.display = 'none';
@@ -182,19 +187,13 @@ async function fetchDomainActions(domain) {
 
     const canonicalUrl = `https://headlessdomains.com/actions/${encodeURIComponent(domain)}`;
     allActions.href = canonicalUrl;
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 5000);
     try {
-        const response = await fetch(`https://headlessdomains.com/api/v1/resolve/${encodeURIComponent(domain)}`, {
-            headers: { Accept: 'application/json' },
-            signal: controller.signal
-        });
-        const payload = await response.json();
+        const { response, payload } = await window.HeadlessActionView.fetchResolver(domain);
         const availability = window.HeadlessActionView.availabilityCopy(response.ok ? payload : null);
         status.dataset.tone = availability.tone;
         status.textContent = availability.text;
         list.replaceChildren();
-        const actions = response.ok && Array.isArray(payload.actions) ? payload.actions : [];
+        const actions = response.ok ? window.HeadlessActionView.publishedActions(payload) : [];
         actions.forEach((action) => list.appendChild(renderProfileAction(action, domain)));
     } catch (error) {
         const availability = window.HeadlessActionView.availabilityCopy(null);
@@ -202,8 +201,14 @@ async function fetchDomainActions(domain) {
         status.textContent = availability.text;
         list.replaceChildren();
     } finally {
-        window.clearTimeout(timeout);
         section.setAttribute('aria-busy', 'false');
+        const content = document.getElementById('content');
+        const loading = document.getElementById('loading');
+        if (content && content.dataset.profileReady !== 'true') {
+            content.classList.add('actions-only');
+            content.style.display = 'block';
+            if (loading) loading.style.display = 'none';
+        }
     }
 }
 

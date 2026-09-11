@@ -43,10 +43,50 @@
 
     function availabilityCopy(payload) {
         if (!payload || payload.status !== 'success') return { tone: 'warning', text: 'Actions are temporarily unavailable. Use the canonical HeadlessDomains page to check again.' };
-        const actions = Array.isArray(payload.actions) ? payload.actions : [];
+        const actions = publishedActions(payload);
         if (!actions.length) return { tone: 'neutral', text: 'No active actions are currently published. The website and identity remain independent and available.' };
         return { tone: 'success', text: `${actions.length} validated action${actions.length === 1 ? '' : 's'} published by the canonical resolver.` };
     }
 
-    return { availabilityCopy, summarizeAction };
+    function publishedActions(payload) {
+        const actions = payload && Array.isArray(payload.actions) ? payload.actions : [];
+        return actions.filter((action) => action && action.lifecycle && action.lifecycle.status === 'active');
+    }
+
+    function startIndependentLoads(loadProfile, loadActions) {
+        const invoke = (loader) => {
+            try {
+                return Promise.resolve(loader());
+            } catch (error) {
+                return Promise.reject(error);
+            }
+        };
+        // Arm the bounded canonical resolver request first, then start TXT.
+        // Neither result is awaited before the other request begins.
+        const actions = invoke(loadActions);
+        const profile = invoke(loadProfile);
+        return { profile, actions };
+    }
+
+    async function fetchResolver(domain, options = {}) {
+        const fetchImpl = options.fetchImpl || fetch;
+        const AbortControllerImpl = options.AbortControllerImpl || AbortController;
+        const setTimer = options.setTimer || setTimeout;
+        const clearTimer = options.clearTimer || clearTimeout;
+        const timeoutMs = options.timeoutMs || 5000;
+        const baseUrl = options.baseUrl || 'https://headlessdomains.com';
+        const controller = new AbortControllerImpl();
+        const timeout = setTimer(() => controller.abort(), timeoutMs);
+        try {
+            const response = await fetchImpl(
+                `${baseUrl}/api/v1/resolve/${encodeURIComponent(domain)}`,
+                { headers: { Accept: 'application/json' }, signal: controller.signal }
+            );
+            return { response, payload: await response.json() };
+        } finally {
+            clearTimer(timeout);
+        }
+    }
+
+    return { availabilityCopy, fetchResolver, publishedActions, startIndependentLoads, summarizeAction };
 });

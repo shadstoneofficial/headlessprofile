@@ -287,6 +287,7 @@ body {
 .profile-actions__status[data-tone="success"] { border-color: rgba(25, 226, 125, 0.4); color: var(--accent-green); }
 .profile-actions__status[data-tone="warning"] { border-color: rgba(255, 184, 77, 0.55); color: #ffb84d; }
 .profile-actions__list { display: grid; gap: 14px; margin-top: 14px; }
+#content.actions-only > *:not(#domain-actions-section) { display: none !important; }
 .profile-action-card { padding: 18px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(255,255,255,0.025); }
 .profile-action-card__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; }
 .profile-action-card h3 { margin: 8px 0 6px; font-size: 1.05rem; }

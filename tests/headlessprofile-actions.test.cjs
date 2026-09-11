@@ -1,7 +1,13 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const { availabilityCopy, summarizeAction } = require('../action-view.js');
+const {
+    availabilityCopy,
+    fetchResolver,
+    publishedActions,
+    startIndependentLoads,
+    summarizeAction
+} = require('../action-view.js');
 
 function card(overrides = {}) {
     return {
@@ -48,4 +54,70 @@ test('empty and degraded resolver states preserve website and identity separatio
     assert.match(availabilityCopy({ status: 'success', actions: [] }).text, /website and identity remain independent/i);
     assert.equal(availabilityCopy(null).tone, 'warning');
     assert.equal(availabilityCopy({ status: 'success', actions: [card()] }).tone, 'success');
+});
+
+test('non-active resolver cards are omitted defensively from HeadlessProfile', () => {
+    const payload = {
+        status: 'success',
+        actions: [
+            card(),
+            card({ id: 'suspended.action', lifecycle: { status: 'suspended' } }),
+            card({ id: 'deprecated.action', lifecycle: { status: 'deprecated' } }),
+            card({ id: 'revoked.action', lifecycle: { status: 'revoked' } })
+        ]
+    };
+    assert.deepEqual(publishedActions(payload).map((action) => action.id), ['powerlobster.service.example']);
+    assert.match(availabilityCopy(payload).text, /^1 validated action/);
+});
+
+test('canonical actions can finish while TXT profile lookup is stalled', async () => {
+    let finishProfile;
+    const events = [];
+    const loads = startIndependentLoads(
+        () => {
+            events.push('profile-started');
+            return new Promise((resolve) => { finishProfile = resolve; });
+        },
+        () => {
+            events.push('actions-started');
+            return { status: 'success', actions: [card()] };
+        }
+    );
+    const actions = await loads.actions;
+    assert.deepEqual(events, ['actions-started', 'profile-started']);
+    assert.equal(actions.actions.length, 1);
+    finishProfile(null);
+    assert.equal(await loads.profile, null);
+});
+
+test('canonical actions succeed independently when TXT profile lookup fails', async () => {
+    const loads = startIndependentLoads(
+        () => { throw new Error('TXT unavailable'); },
+        () => ({ status: 'success', actions: [card()] })
+    );
+    assert.equal((await loads.actions).actions.length, 1);
+    await assert.rejects(loads.profile, /TXT unavailable/);
+});
+
+test('resolver timeout is armed before fetch and cleared after completion', async () => {
+    const events = [];
+    let timeoutCallback;
+    const controller = { signal: {}, abort: () => events.push('aborted') };
+    const result = await fetchResolver('lisa.agent', {
+        AbortControllerImpl: class { constructor() { return controller; } },
+        setTimer: (callback, delay) => {
+            events.push(`timer:${delay}`);
+            timeoutCallback = callback;
+            return 7;
+        },
+        clearTimer: (id) => events.push(`clear:${id}`),
+        fetchImpl: async (_url, options) => {
+            events.push(options.signal === controller.signal ? 'fetch-with-signal' : 'fetch-without-signal');
+            return { ok: true, json: async () => ({ status: 'success', actions: [card()] }) };
+        }
+    });
+    assert.deepEqual(events, ['timer:5000', 'fetch-with-signal', 'clear:7']);
+    assert.equal(result.payload.status, 'success');
+    timeoutCallback();
+    assert.equal(events.at(-1), 'aborted');
 });
