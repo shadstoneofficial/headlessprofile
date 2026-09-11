@@ -53,10 +53,19 @@ async function fetchTXTRecords() {
 
     if (loadingDiv) loadingDiv.style.display = 'block';
 
-    // Fetch and process the root domain's records using Punycode
-    const txtRecords = await fetchAndProcessTXTRecords(punycodeDomain);
+    // Start canonical actions independently. TXT/profile failure or latency must
+    // never prevent a valid resolver response from rendering.
+    const loads = window.HeadlessActionView.startIndependentLoads(
+        () => fetchAndProcessTXTRecords(punycodeDomain),
+        () => fetchDomainActions(punycodeDomain)
+    );
+    const txtRecords = await loads.profile;
 
     if (txtRecords) {
+        if (contentDiv) {
+            contentDiv.dataset.profileReady = 'true';
+            contentDiv.classList.remove('actions-only');
+        }
         // Apply dynamic favicon and CSS
         await setDynamicFavicon(txtRecords);
         await setDynamicCSS(txtRecords);
@@ -111,6 +120,94 @@ async function fetchTXTRecords() {
             setTimeout(() => {
                 syncToIpfs(true);
             }, 800);
+        }
+    }
+}
+
+function appendActionFact(container, label, value) {
+    const fact = document.createElement('div');
+    fact.className = 'profile-action-card__fact';
+    const name = document.createElement('span');
+    name.textContent = label;
+    const detail = document.createElement('strong');
+    detail.textContent = value;
+    fact.append(name, detail);
+    container.appendChild(fact);
+}
+
+function renderProfileAction(action, domain) {
+    const summary = window.HeadlessActionView.summarizeAction(action);
+    const card = document.createElement('article');
+    card.className = 'profile-action-card';
+
+    const top = document.createElement('div');
+    top.className = 'profile-action-card__top';
+    const copy = document.createElement('div');
+    const badges = document.createElement('div');
+    badges.className = 'profile-action-card__badges';
+    [summary.behavior, summary.lifecycle, summary.provider].forEach((label, index) => {
+        const badge = document.createElement('span');
+        badge.className = `profile-action-badge${index === 0 ? ' profile-action-badge--primary' : ''}`;
+        badge.textContent = label;
+        badges.appendChild(badge);
+    });
+    const heading = document.createElement('h3');
+    heading.textContent = summary.name;
+    const description = document.createElement('p');
+    description.textContent = summary.description;
+    copy.append(badges, heading, description);
+
+    const review = document.createElement('a');
+    review.className = 'btn-solid-green';
+    review.textContent = 'Review action ↗';
+    review.href = `https://headlessdomains.com/actions/${encodeURIComponent(domain)}#action-${String(summary.id || '').replace(/\./g, '-')}`;
+    review.target = '_blank';
+    review.rel = 'noopener noreferrer';
+    review.setAttribute('aria-label', `Review ${summary.name} on HeadlessDomains (opens in a new tab)`);
+    top.append(copy, review);
+
+    const facts = document.createElement('div');
+    facts.className = 'profile-action-card__facts';
+    appendActionFact(facts, 'Trust', summary.trust);
+    appendActionFact(facts, 'Authentication', summary.authentication);
+    appendActionFact(facts, 'Approval', summary.approval);
+    appendActionFact(facts, 'Payment', summary.payment);
+    appendActionFact(facts, 'Expected receipt', summary.receipt);
+    appendActionFact(facts, 'Provider', summary.provider);
+    card.append(top, facts);
+    return card;
+}
+
+async function fetchDomainActions(domain) {
+    const section = document.getElementById('domain-actions-section');
+    const status = document.getElementById('domain-actions-status');
+    const list = document.getElementById('domain-actions-list');
+    const allActions = document.getElementById('domain-actions-link');
+    if (!section || !status || !list || !allActions || !window.HeadlessActionView) return;
+
+    const canonicalUrl = `https://headlessdomains.com/actions/${encodeURIComponent(domain)}`;
+    allActions.href = canonicalUrl;
+    try {
+        const { response, payload } = await window.HeadlessActionView.fetchResolver(domain);
+        const availability = window.HeadlessActionView.availabilityCopy(response.ok ? payload : null);
+        status.dataset.tone = availability.tone;
+        status.textContent = availability.text;
+        list.replaceChildren();
+        const actions = response.ok ? window.HeadlessActionView.publishedActions(payload) : [];
+        actions.forEach((action) => list.appendChild(renderProfileAction(action, domain)));
+    } catch (error) {
+        const availability = window.HeadlessActionView.availabilityCopy(null);
+        status.dataset.tone = availability.tone;
+        status.textContent = availability.text;
+        list.replaceChildren();
+    } finally {
+        section.setAttribute('aria-busy', 'false');
+        const content = document.getElementById('content');
+        const loading = document.getElementById('loading');
+        if (content && content.dataset.profileReady !== 'true') {
+            content.classList.add('actions-only');
+            content.style.display = 'block';
+            if (loading) loading.style.display = 'none';
         }
     }
 }

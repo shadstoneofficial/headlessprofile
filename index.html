@@ -176,6 +176,20 @@
         <!-- Primary Actions (Manifest, Skill, Website) -->
         <div id="primary-actions" class="primary-actions"></div>
 
+        <!-- Resolver-backed provider actions. These remain separate from the native website above. -->
+        <section id="domain-actions-section" class="profile-actions card" aria-labelledby="domain-actions-heading" aria-busy="true">
+            <div class="profile-actions__header">
+                <div>
+                    <div class="profile-actions__eyebrow">HEADLESSDOMAINS ACTIONS</div>
+                    <h2 id="domain-actions-heading">Provider actions</h2>
+                    <p>Separate from this identity profile and the domain's native website. The named provider performs each action.</p>
+                </div>
+                <a id="domain-actions-link" class="btn-solid-green profile-actions__all" href="https://headlessdomains.com/actions/" target="_blank" rel="noopener noreferrer">Review all actions ↗</a>
+            </div>
+            <div id="domain-actions-status" class="profile-actions__status" role="status">Checking the canonical resolver for published actions…</div>
+            <div id="domain-actions-list" class="profile-actions__list"></div>
+        </section>
+
         <!-- Socials & Other Links -->
         <div id="links" class="links-grid"></div>
 
@@ -303,6 +317,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/punycode@2.3.1/punycode.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="action-view.js"></script>
     <script src="fetch.js"></script>
 </body>
 </html>
